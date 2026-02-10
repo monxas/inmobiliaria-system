@@ -10,6 +10,8 @@
     "test": "bun test",
     "db:migrate": "bun run database/migrate.ts",
     "db:seed": "bun run database/seed.ts",
+    "db:rollback": "bun run database/migrate.ts --rollback",
+    "db:studio": "bunx drizzle-kit studio",
     "docker:build": "docker compose build",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
@@ -28,7 +30,9 @@
   "license": "MIT",
   "devDependencies": {
     "@types/bun": "latest",
-    "typescript": "^5.0.0"
+    "drizzle-kit": "^0.20.0",
+    "typescript": "^5.0.0",
+    "drizzle-kit": "^0.20.0"
   },
   "dependencies": {
     "hono": "^4.0.0",
