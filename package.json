@@ -1,0 +1,45 @@
+{
+  "name": "inmobiliaria-system",
+  "version": "0.1.0",
+  "description": "Sistema de gestión inmobiliaria self-hosted optimizado para NAS",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch backend/src/index.ts",
+    "build": "bun build backend/src/index.ts --outdir dist",
+    "start": "bun dist/index.js",
+    "test": "bun test",
+    "db:migrate": "bun run database/migrate.ts",
+    "db:seed": "bun run database/seed.ts",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "keywords": [
+    "inmobiliaria", 
+    "real-estate", 
+    "self-hosted", 
+    "nas",
+    "bun",
+    "hono",
+    "postgresql",
+    "sveltekit"
+  ],
+  "author": "Mon",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "drizzle-orm": "^0.29.0",
+    "postgres": "^3.4.0",
+    "zod": "^3.22.0",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "^9.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=22.0.0"
+  }
+}

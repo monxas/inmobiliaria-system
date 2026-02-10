@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+bun.lockb
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite
+database/data/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.pid.lock
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+temp/
+tmp/
+.tmp/
+
+# Coverage reports
+coverage/
+.nyc_output/
