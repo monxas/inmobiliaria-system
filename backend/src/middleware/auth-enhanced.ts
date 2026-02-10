@@ -20,8 +20,8 @@ import {
   AuditAction,
   createAuditContext,
   isMFAEnabled,
-  type TokenType,
 } from '../lib/security'
+import type { TokenType } from '../lib/security'
 import type { UserRole, AppVariables, AuthUser } from '../types'
 import { logger } from '../lib/logger'
 
@@ -88,8 +88,8 @@ export const requireAuthEnhanced = (options?: AuthOptions) => {
         
         return c.json(apiError(
           `Account is locked. Try again in ${lockoutStatus.lockoutDuration} seconds.`,
-          'ACCOUNT_LOCKED',
-          423
+          423,
+          'ACCOUNT_LOCKED'
         ), 423)
       }
 
@@ -99,8 +99,8 @@ export const requireAuthEnhanced = (options?: AuthOptions) => {
         if (mfaEnabled) {
           return c.json(apiError(
             'MFA verification required',
-            'MFA_REQUIRED',
-            403
+            403,
+            'MFA_REQUIRED'
           ), 403)
         }
         // If MFA not enabled for user, allow through
@@ -123,8 +123,8 @@ export const requireAuthEnhanced = (options?: AuthOptions) => {
           
           return c.json(apiError(
             sessionValidation.reason || 'Session invalid',
-            'SESSION_INVALID',
-            401
+            401,
+            'SESSION_INVALID'
           ), 401)
         }
         
@@ -160,7 +160,7 @@ export const requireAuthEnhanced = (options?: AuthOptions) => {
         return c.json(apiError('Insufficient permissions', 403, 'FORBIDDEN'), 403)
       }
       
-      return c.json(apiError('Invalid token', 'INVALID_TOKEN', 401), 401)
+      return c.json(apiError('Invalid token', 401, 'INVALID_TOKEN'), 401)
     }
   }
 }
@@ -188,7 +188,7 @@ export const requireAPIKey = () => {
     const apiKeyId = c.req.header('X-API-Key-ID')
     
     if (!apiKey || !apiKeyId) {
-      return c.json(apiError('API key required', 'API_KEY_REQUIRED', 401), 401)
+      return c.json(apiError('API key required', 401, 'API_KEY_REQUIRED'), 401)
     }
     
     // In production, validate against stored API keys
@@ -228,7 +228,7 @@ export const requireOwnershipEnhanced = (
 
     const ownerId = await getOwnerId(c)
     if (ownerId === null) {
-      return c.json(apiError('Resource not found', 'NOT_FOUND', 404), 404)
+      return c.json(apiError('Resource not found', 404, 'NOT_FOUND'), 404)
     }
 
     if (ownerId !== user.id) {
@@ -246,7 +246,7 @@ export const requireOwnershipEnhanced = (
         }
       )
       
-      return c.json(apiError('You do not have access to this resource', 'FORBIDDEN', 403), 403)
+      return c.json(apiError('You do not have access to this resource', 403, 'FORBIDDEN'), 403)
     }
 
     await next()
@@ -276,14 +276,14 @@ export const requireRecentAuth = (maxAgeMinutes: number = 15) => {
       if (tokenAge > maxAgeSeconds) {
         return c.json(apiError(
           'Please re-authenticate for this sensitive operation',
-          'REAUTH_REQUIRED',
-          401
+          401,
+          'REAUTH_REQUIRED'
         ), 401)
       }
 
       await next()
     } catch {
-      return c.json(apiError('Invalid token', 'INVALID_TOKEN', 401), 401)
+      return c.json(apiError('Invalid token', 401, 'INVALID_TOKEN'), 401)
     }
   }
 }

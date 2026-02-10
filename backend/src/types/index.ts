@@ -195,6 +195,12 @@ export interface AppVariables {
   requestId?: string
   /** Request start timestamp for duration tracking */
   requestStart?: number
+  /** Session ID from JWT (set by enhanced auth middleware) */
+  sessionId?: string
+  /** JWT ID for token tracking (set by enhanced auth middleware) */
+  jti?: string
+  /** CSP nonce for scripts (set by security headers middleware) */
+  cspNonce?: string
 }
 
 // ============================================

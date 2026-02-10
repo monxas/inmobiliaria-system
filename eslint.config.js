@@ -125,8 +125,8 @@ export default tseslint.config(
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-throw-literal': 'error',
-      '@typescript-eslint/no-throw-literal': 'error',
+      // Renamed in typescript-eslint v8: no-throw-literal → only-throw-error
+      '@typescript-eslint/only-throw-error': 'error',
       
       // ============================================
       // STYLISTIC (CONSISTENCY)

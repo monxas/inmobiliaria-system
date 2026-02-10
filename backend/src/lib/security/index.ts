@@ -5,6 +5,10 @@
  * Security score target: 10/10
  */
 
+// Local imports for health check
+import { validateSecretStrength as _validateSecretStrength } from './jwt-advanced'
+import { validateKeyStrength as _validateKeyStrength } from './pii-encryption'
+
 // Advanced JWT Security
 export {
   signAdvancedJWT,
@@ -175,7 +179,7 @@ export function securityHealthCheck(): {
   const checks: Array<{ name: string; passed: boolean; message: string }> = []
   
   // JWT Secret strength
-  const jwtCheck = validateSecretStrength()
+  const jwtCheck = _validateSecretStrength()
   checks.push({
     name: 'JWT Secret Strength',
     passed: jwtCheck.valid,
@@ -183,7 +187,7 @@ export function securityHealthCheck(): {
   })
   
   // Encryption key strength
-  const encryptionCheck = validateKeyStrength()
+  const encryptionCheck = _validateKeyStrength()
   checks.push({
     name: 'Encryption Key Strength',
     passed: encryptionCheck.valid,
