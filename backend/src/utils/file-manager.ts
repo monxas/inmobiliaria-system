@@ -5,8 +5,8 @@ import { signJWT, verifyJWT } from './crypto'
 import type { FileManagerConfig, FileCategory } from '../types'
 
 const DEFAULT_CONFIG: FileManagerConfig = {
-  storagePath: process.env.FILE_STORAGE_PATH || './storage',
-  secretKey: process.env.JWT_SECRET || 'dev-secret',
+  storagePath: process.env['FILE_STORAGE_PATH'] ?? './storage',
+  secretKey: process.env['JWT_SECRET'] ?? 'dev-secret',
   categories: {
     property_images: {
       maxSize: 10 * 1024 * 1024, // 10MB

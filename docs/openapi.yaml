@@ -1,0 +1,1385 @@
+openapi: 3.1.0
+info:
+  title: Inmobiliaria System API
+  description: |
+    Enterprise-grade Real Estate Management API for self-hosted environments.
+    
+    ## Features
+    - Property management with advanced filtering
+    - Client relationship tracking
+    - Secure document handling with token-based access
+    - Role-based access control (Admin, Agent, Client)
+    
+    ## Authentication
+    All protected endpoints require a JWT token in the Authorization header:
+    ```
+    Authorization: Bearer <token>
+    ```
+    
+    Obtain a token via `POST /api/auth/login`.
+  version: 1.0.0
+  contact:
+    name: Mon
+    email: admin@inmobiliaria.local
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.inmobiliaria.local
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health check and system status endpoints
+  - name: Auth
+    description: Authentication and user session management
+  - name: Properties
+    description: Property management operations
+  - name: Clients
+    description: Client relationship management
+  - name: Users
+    description: User administration (Admin only)
+  - name: Documents
+    description: Document and file management
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Basic health check
+      description: Returns API status for load balancer health checks
+      operationId: getHealth
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/detailed:
+    get:
+      tags: [Health]
+      summary: Detailed health check
+      description: Returns detailed health including database connectivity
+      operationId: getHealthDetailed
+      responses:
+        '200':
+          description: Detailed health information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedHealthResponse'
+
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      description: Creates a new user account with 'client' role
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: User login
+      description: Authenticates user and returns JWT token
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user
+      description: Returns the authenticated user's profile
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags: [Auth]
+      summary: Update current user
+      description: Updates the authenticated user's profile
+      operationId: updateCurrentUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileInput'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/properties:
+    get:
+      tags: [Properties]
+      summary: List properties
+      description: Returns paginated list of properties with optional filters
+      operationId: listProperties
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: city
+          in: query
+          schema:
+            type: string
+          description: Filter by city (partial match)
+        - name: propertyType
+          in: query
+          schema:
+            $ref: '#/components/schemas/PropertyType'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/PropertyStatus'
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: minBedrooms
+          in: query
+          schema:
+            type: integer
+        - name: minSurface
+          in: query
+          schema:
+            type: integer
+        - name: ownerId
+          in: query
+          schema:
+            type: integer
+        - name: agentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paginated list of properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertiesListResponse'
+    post:
+      tags: [Properties]
+      summary: Create property
+      description: Creates a new property listing
+      operationId: createProperty
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePropertyInput'
+      responses:
+        '201':
+          description: Property created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/properties/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    get:
+      tags: [Properties]
+      summary: Get property
+      description: Returns a single property by ID
+      operationId: getProperty
+      responses:
+        '200':
+          description: Property details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Properties]
+      summary: Update property
+      description: Updates an existing property
+      operationId: updateProperty
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePropertyInput'
+      responses:
+        '200':
+          description: Property updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Properties]
+      summary: Delete property
+      description: Soft deletes a property
+      operationId: deleteProperty
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Property deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/clients:
+    get:
+      tags: [Clients]
+      summary: List clients
+      description: Returns paginated list of clients
+      operationId: listClients
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: fullName
+          in: query
+          schema:
+            type: string
+        - name: email
+          in: query
+          schema:
+            type: string
+        - name: agentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paginated list of clients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientsListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Clients]
+      summary: Create client
+      description: Creates a new client
+      operationId: createClient
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientInput'
+      responses:
+        '201':
+          description: Client created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/clients/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    get:
+      tags: [Clients]
+      summary: Get client
+      operationId: getClient
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Client details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Clients]
+      summary: Update client
+      operationId: updateClient
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientInput'
+      responses:
+        '200':
+          description: Client updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Clients]
+      summary: Delete client
+      operationId: deleteClient
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Client deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/users:
+    get:
+      tags: [Users]
+      summary: List users
+      description: Admin-only endpoint to list all users
+      operationId: listUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: email
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserRole'
+        - name: fullName
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Users]
+      summary: Create user
+      description: Admin-only endpoint to create users with any role
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserInput'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    get:
+      tags: [Users]
+      summary: Get user
+      operationId: getUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Users]
+      summary: Update user
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserInput'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Users]
+      summary: Delete user
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/documents:
+    get:
+      tags: [Documents]
+      summary: List documents
+      operationId: listDocuments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/FileCategory'
+        - name: propertyId
+          in: query
+          schema:
+            type: integer
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+        - name: isPublic
+          in: query
+          schema:
+            type: boolean
+        - name: uploadedBy
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paginated list of documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentsListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/documents/upload:
+    post:
+      tags: [Documents]
+      summary: Upload document
+      operationId: uploadDocument
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - category
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload
+                category:
+                  $ref: '#/components/schemas/FileCategory'
+                propertyId:
+                  type: integer
+                clientId:
+                  type: integer
+      responses:
+        '201':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/documents/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    get:
+      tags: [Documents]
+      summary: Get document metadata
+      operationId: getDocument
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Document metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Documents]
+      summary: Update document metadata
+      operationId: updateDocument
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentInput'
+      responses:
+        '200':
+          description: Document updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Documents]
+      summary: Delete document
+      operationId: deleteDocument
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Document deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/documents/download/{token}:
+    parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Secure access token for the document
+    get:
+      tags: [Documents]
+      summary: Download document by token
+      description: Public endpoint to download documents using access token
+      operationId: downloadDocument
+      responses:
+        '200':
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Token not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/documents/{id}/regenerate-token:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    post:
+      tags: [Documents]
+      summary: Regenerate access token
+      description: Generates a new access token (invalidates the old one)
+      operationId: regenerateDocumentToken
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: New token generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/login
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: Resource ID
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      description: Items per page
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              message: "Validation failed: email is required"
+              code: 400
+              details:
+                field: email
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              message: "Authentication required"
+              code: 401
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              message: "Insufficient permissions"
+              code: 403
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              message: "Resource not found"
+              code: 404
+
+  schemas:
+    # Enums
+    UserRole:
+      type: string
+      enum: [admin, agent, client]
+      description: User role for access control
+    PropertyType:
+      type: string
+      enum: [house, apartment, office, warehouse, land, commercial]
+    PropertyStatus:
+      type: string
+      enum: [available, reserved, sold, rented, off_market]
+    FileCategory:
+      type: string
+      enum: [property_docs, property_images, client_docs, contracts, other]
+
+    # Base schemas
+    Timestamps:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Pagination:
+      type: object
+      required: [page, limit, total, pages]
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    # Health
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        timestamp:
+          type: string
+          format: date-time
+    DetailedHealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        version:
+          type: string
+        uptime:
+          type: number
+        database:
+          type: object
+          properties:
+            connected:
+              type: boolean
+            latencyMs:
+              type: number
+
+    # Auth
+    RegisterInput:
+      type: object
+      required: [email, password, fullName]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        fullName:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            token:
+              type: string
+    UpdateProfileInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+
+    # User
+    User:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+        - type: object
+          properties:
+            id:
+              type: integer
+            email:
+              type: string
+            role:
+              $ref: '#/components/schemas/UserRole'
+            fullName:
+              type: string
+            phone:
+              type: string
+              nullable: true
+            avatarUrl:
+              type: string
+              nullable: true
+    CreateUserInput:
+      type: object
+      required: [email, password, fullName, role]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        fullName:
+          type: string
+        phone:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+    UpdateUserInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        phone:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/User'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    UsersListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        meta:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMeta'
+            - type: object
+              properties:
+                pagination:
+                  $ref: '#/components/schemas/Pagination'
+
+    # Property
+    Property:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+        - type: object
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+            description:
+              type: string
+              nullable: true
+            address:
+              type: string
+            city:
+              type: string
+            postalCode:
+              type: string
+              nullable: true
+            country:
+              type: string
+            propertyType:
+              $ref: '#/components/schemas/PropertyType'
+            status:
+              $ref: '#/components/schemas/PropertyStatus'
+            price:
+              type: string
+              description: Decimal value as string
+            surfaceArea:
+              type: integer
+              nullable: true
+            bedrooms:
+              type: integer
+              nullable: true
+            bathrooms:
+              type: integer
+              nullable: true
+            garage:
+              type: boolean
+            garden:
+              type: boolean
+            ownerId:
+              type: integer
+              nullable: true
+            agentId:
+              type: integer
+              nullable: true
+    CreatePropertyInput:
+      type: object
+      required: [title, address, city, propertyType, price]
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+          maxLength: 100
+        postalCode:
+          type: string
+        country:
+          type: string
+          default: España
+        propertyType:
+          $ref: '#/components/schemas/PropertyType'
+        status:
+          $ref: '#/components/schemas/PropertyStatus'
+          default: available
+        price:
+          type: number
+          minimum: 0
+        surfaceArea:
+          type: integer
+          minimum: 0
+        bedrooms:
+          type: integer
+          minimum: 0
+        bathrooms:
+          type: integer
+          minimum: 0
+        garage:
+          type: boolean
+          default: false
+        garden:
+          type: boolean
+          default: false
+        ownerId:
+          type: integer
+        agentId:
+          type: integer
+    UpdatePropertyInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        propertyType:
+          $ref: '#/components/schemas/PropertyType'
+        status:
+          $ref: '#/components/schemas/PropertyStatus'
+        price:
+          type: number
+        surfaceArea:
+          type: integer
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        garage:
+          type: boolean
+        garden:
+          type: boolean
+        ownerId:
+          type: integer
+        agentId:
+          type: integer
+    PropertyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Property'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    PropertiesListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+        meta:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMeta'
+            - type: object
+              properties:
+                pagination:
+                  $ref: '#/components/schemas/Pagination'
+
+    # Client
+    Client:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+        - type: object
+          properties:
+            id:
+              type: integer
+            fullName:
+              type: string
+            email:
+              type: string
+              nullable: true
+            phone:
+              type: string
+              nullable: true
+            address:
+              type: string
+              nullable: true
+            notes:
+              type: string
+              nullable: true
+            agentId:
+              type: integer
+              nullable: true
+    CreateClientInput:
+      type: object
+      required: [fullName]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          type: string
+        notes:
+          type: string
+        agentId:
+          type: integer
+    UpdateClientInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        notes:
+          type: string
+        agentId:
+          type: integer
+    ClientResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Client'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ClientsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        meta:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMeta'
+            - type: object
+              properties:
+                pagination:
+                  $ref: '#/components/schemas/Pagination'
+
+    # Document
+    Document:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Timestamps'
+        - type: object
+          properties:
+            id:
+              type: integer
+            filename:
+              type: string
+            originalFilename:
+              type: string
+            filePath:
+              type: string
+            fileSize:
+              type: integer
+            mimeType:
+              type: string
+            category:
+              $ref: '#/components/schemas/FileCategory'
+            propertyId:
+              type: integer
+              nullable: true
+            clientId:
+              type: integer
+              nullable: true
+            accessToken:
+              type: string
+              nullable: true
+            expiresAt:
+              type: string
+              format: date-time
+              nullable: true
+            downloadCount:
+              type: integer
+            isPublic:
+              type: boolean
+            uploadedBy:
+              type: integer
+    UpdateDocumentInput:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/FileCategory'
+        propertyId:
+          type: integer
+          nullable: true
+        clientId:
+          type: integer
+          nullable: true
+        isPublic:
+          type: boolean
+    DocumentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Document'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    DocumentsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        meta:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMeta'
+            - type: object
+              properties:
+                pagination:
+                  $ref: '#/components/schemas/Pagination'
+
+    # Common
+    ResponseMeta:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: Correlation ID for request tracing
+    ErrorResponse:
+      type: object
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: object
+          required: [message, code]
+          properties:
+            message:
+              type: string
+            code:
+              type: integer
+            details:
+              type: object
+    DeleteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            deleted:
+              type: boolean
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'

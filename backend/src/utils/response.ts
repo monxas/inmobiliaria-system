@@ -13,11 +13,14 @@ import { ErrorCodes } from '../types/errors'
 
 /**
  * Response metadata options.
+ * 
+ * Note: Properties use `| undefined` explicitly to work with 
+ * exactOptionalPropertyTypes when values come from index signatures.
  */
 interface ResponseMeta {
-  pagination?: PaginationMeta
-  requestId?: string
-  timestamp?: string
+  pagination?: PaginationMeta | undefined
+  requestId?: string | undefined
+  timestamp?: string | undefined
   [key: string]: unknown
 }
 

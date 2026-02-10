@@ -144,7 +144,7 @@ export function validateFile(
   const errors: string[] = []
   
   // 1. Check file size limit
-  const sizeLimit = FileSizeLimits[category] ?? FileSizeLimits.other ?? 10 * 1024 * 1024
+  const sizeLimit = FileSizeLimits[category] ?? FileSizeLimits['other'] ?? 10 * 1024 * 1024
   if (buffer.length > sizeLimit) {
     errors.push(`File size ${(buffer.length / 1024 / 1024).toFixed(2)}MB exceeds limit of ${(sizeLimit / 1024 / 1024).toFixed(0)}MB`)
   }
@@ -153,7 +153,7 @@ export function validateFile(
   const detectedMimeType = detectMimeType(buffer)
   
   // 3. Check if MIME type is allowed for this category
-  const allowedMimes = AllowedMimeTypes[category] ?? AllowedMimeTypes.other ?? ['application/pdf']
+  const allowedMimes = AllowedMimeTypes[category] ?? AllowedMimeTypes['other'] ?? ['application/pdf']
   
   if (detectedMimeType) {
     if (!allowedMimes.includes(detectedMimeType)) {

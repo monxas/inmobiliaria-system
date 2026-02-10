@@ -268,8 +268,8 @@ export class UsersController {
 
   private parsePagination(query: Record<string, string>) {
     const result = PaginationSchema.safeParse({
-      page: query.page,
-      limit: query.limit,
+      page: query['page'],
+      limit: query['limit'],
     })
     return result.success ? result.data : { page: 1, limit: 10 }
   }

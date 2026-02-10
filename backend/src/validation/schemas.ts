@@ -318,7 +318,7 @@ export const userSchema = CreateUserSchema
  * Parse pagination from query params with defaults
  */
 export function parsePagination(query: Record<string, string | undefined>): PaginationInput {
-  return PaginationSchema.parse({ page: query.page, limit: query.limit })
+  return PaginationSchema.parse({ page: query['page'], limit: query['limit'] })
 }
 
 /**

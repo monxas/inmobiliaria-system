@@ -189,8 +189,8 @@ export abstract class CRUDController<
    */
   protected parsePagination(query: Record<string, string>): PaginationInput {
     const result = PaginationSchema.safeParse({
-      page: query.page,
-      limit: query.limit,
+      page: query['page'],
+      limit: query['limit'],
     })
 
     if (result.success) {

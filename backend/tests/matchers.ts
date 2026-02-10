@@ -146,8 +146,8 @@ export function expectValidUser(obj: unknown): asserts obj is User {
   expect(validRoles).toContain(user.role)
   
   // Password hash should NEVER be exposed
-  if ('passwordHash' in obj) {
-    expect((obj as any).passwordHash).not.toMatch(/^[$]2[aby]?[$]/)
+  if (typeof obj === 'object' && obj !== null && 'passwordHash' in obj) {
+    expect((obj as Record<string, unknown>)['passwordHash']).not.toMatch(/^[$]2[aby]?[$]/)
   }
 }
 
@@ -175,7 +175,9 @@ export function expectTokenPayload(token: string, expected: { userId?: number; r
   expectValidJWT(token)
   
   const parts = token.split('.')
-  const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString())
+  const payloadPart = parts[1]
+  if (!payloadPart) throw new Error('Invalid JWT: missing payload part')
+  const payload = JSON.parse(Buffer.from(payloadPart, 'base64url').toString())
   
   if (expected.userId !== undefined) expect(payload.userId).toBe(expected.userId)
   if (expected.role !== undefined) expect(payload.role).toBe(expected.role)
@@ -206,10 +208,13 @@ export async function expectSlowerThan<T>(ms: number, fn: () => Promise<T>): Pro
 
 export function expectSortedBy<T>(array: T[], key: keyof T, order: 'asc' | 'desc' = 'asc') {
   for (let i = 1; i < array.length; i++) {
+    const current = array[i]
+    const previous = array[i - 1]
+    if (!current || !previous) continue
     if (order === 'asc') {
-      expect(array[i][key] >= array[i - 1][key]).toBe(true)
+      expect(current[key] >= previous[key]).toBe(true)
     } else {
-      expect(array[i][key] <= array[i - 1][key]).toBe(true)
+      expect(current[key] <= previous[key]).toBe(true)
     }
   }
 }

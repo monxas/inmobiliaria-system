@@ -6,7 +6,7 @@ import postgres from 'postgres';
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = process.env['DATABASE_URL'];
 if (!DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is required');
 }
@@ -73,6 +73,10 @@ async function rollbackLast() {
   }
 
   const last = applied[applied.length - 1];
+  if (!last) {
+    console.log('No migrations to rollback.');
+    return;
+  }
   console.log(`⏪ Rolling back: ${last}`);
   // Note: SQL migrations don't have automatic rollback.
   // For safety, we just remove the record. Manual cleanup may be needed.

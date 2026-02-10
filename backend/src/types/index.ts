@@ -8,6 +8,10 @@
 // Re-exports
 // ============================================
 export * from './errors'
+export * from './branded'
+export * from './result'
+export * from './guards'
+export type * from './utility'
 
 // ============================================
 // Core Types
@@ -76,11 +80,11 @@ export interface ApiResponseBody<T = unknown> {
   success: true
   data: T
   meta?: {
-    pagination?: PaginationMeta
-    requestId?: string
-    timestamp?: string
+    pagination?: PaginationMeta | undefined
+    requestId?: string | undefined
+    timestamp?: string | undefined
     [key: string]: unknown
-  }
+  } | undefined
 }
 
 /**

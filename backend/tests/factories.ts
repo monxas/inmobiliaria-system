@@ -4,7 +4,7 @@
 
 import type { User, CreateUser } from '../src/database/schema/users'
 import type { Property, CreateProperty } from '../src/database/schema/properties'
-import type { Client, CreateClient } from '../src/database/schema/clients'
+import type { Client } from '../src/database/schema/clients'
 import type { UserRole } from '../src/types'
 
 let counter = 0

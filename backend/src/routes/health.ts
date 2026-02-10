@@ -78,7 +78,7 @@ health.get('/detailed', async (c) => {
 
   return c.json({
     status: allOk ? 'healthy' : 'degraded',
-    version: process.env.APP_VERSION || '0.1.0',
+    version: process.env['APP_VERSION'] ?? '0.1.0',
     uptime: Math.round((Date.now() - startTime) / 1000),
     timestamp: new Date().toISOString(),
     checks,

@@ -10,8 +10,8 @@ import { logger } from '../lib/logger'
 export type SafeUser = Omit<User, 'passwordHash'>
 
 // Token configuration
-const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY || '15m'
-const REFRESH_TOKEN_EXPIRY_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRY_DAYS) || 7
+const ACCESS_TOKEN_EXPIRY = process.env['ACCESS_TOKEN_EXPIRY'] ?? '15m'
+const REFRESH_TOKEN_EXPIRY_DAYS = Number(process.env['REFRESH_TOKEN_EXPIRY_DAYS']) || 7
 
 interface TokenPair {
   accessToken: string

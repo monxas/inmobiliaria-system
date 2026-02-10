@@ -4,10 +4,10 @@
  */
 
 // Set test environment before anything else
-process.env.NODE_ENV = 'test'
-process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only-32chars!'
-process.env.FILE_STORAGE_PATH = '/tmp/inmobiliaria-test-storage'
-process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/inmobiliaria_test'
+process.env['NODE_ENV'] = 'test'
+process.env['JWT_SECRET'] = 'test-jwt-secret-key-for-testing-only-32chars!'
+process.env['FILE_STORAGE_PATH'] = '/tmp/inmobiliaria-test-storage'
+process.env['DATABASE_URL'] = process.env['TEST_DATABASE_URL'] ?? 'postgresql://postgres:postgres@localhost:5432/inmobiliaria_test'
 
 import { afterAll } from 'bun:test'
 import { rm } from 'fs/promises'

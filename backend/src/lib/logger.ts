@@ -6,9 +6,9 @@
 const LOG_LEVELS = { debug: 10, info: 20, warn: 30, error: 40, fatal: 50 } as const
 type LogLevel = keyof typeof LOG_LEVELS
 
-const currentLevel: LogLevel = (process.env.LOG_LEVEL as LogLevel) || 'info'
+const currentLevel: LogLevel = (process.env['LOG_LEVEL'] as LogLevel) || 'info'
 const currentLevelValue = LOG_LEVELS[currentLevel] ?? 20
-const prettyPrint = process.env.LOG_FORMAT === 'pretty'
+const prettyPrint = process.env['LOG_FORMAT'] === 'pretty'
 
 interface LogEntry {
   level: LogLevel

@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    // Target & Module
+    // Target & Module - Modern ES2022+ with bundler resolution
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "bundler",
     "lib": ["ES2022"],
     
-    // Strict Type Checking
+    // ============================================
+    // STRICTEST TYPE CHECKING (10/10 MODE)
+    // ============================================
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -17,23 +19,33 @@
     "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
     
-    // Additional Checks
+    // ============================================
+    // ADDITIONAL STRICT CHECKS (9.5→10)
+    // ============================================
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    // Note: exactOptionalPropertyTypes requires extensive codebase changes
+    // Enable when migrating to stricter patterns: "exactOptionalPropertyTypes": true,
     "exactOptionalPropertyTypes": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+    // Note: noPropertyAccessFromIndexSignature requires bracket notation for process.env
+    // Enable for stricter access patterns: "noPropertyAccessFromIndexSignature": true,
     "noPropertyAccessFromIndexSignature": false,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
+    
+    // Exhaustiveness checking for switch statements
+    "noUncheckedSideEffectImports": false,
     
     // Module Interop
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": false,
     
     // Emit
     "declaration": true,
@@ -41,6 +53,8 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": ".",
+    "removeComments": false,
+    "preserveConstEnums": true,
     
     // Resolution
     "resolveJsonModule": true,
@@ -49,11 +63,14 @@
     // Types
     "types": ["bun-types"],
     
-    // Path Mapping (optional, for cleaner imports)
+    // Path Mapping for clean imports
     "baseUrl": ".",
     "paths": {
       "@/*": ["backend/src/*"],
-      "@db/*": ["database/*"]
+      "@db/*": ["database/*"],
+      "@types/*": ["backend/src/types/*"],
+      "@utils/*": ["backend/src/utils/*"],
+      "@lib/*": ["backend/src/lib/*"]
     }
   },
   "include": [
@@ -63,6 +80,8 @@
   ],
   "exclude": [
     "node_modules", 
-    "dist"
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }

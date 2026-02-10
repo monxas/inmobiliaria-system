@@ -114,16 +114,21 @@ export class UsersService {
       }
     }
 
-    // Build update data
-    const updateData: Partial<CreateUser> = { ...input }
+    // Build update data, filtering out undefined values for exactOptionalPropertyTypes
+    const updateData: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(input)) {
+      if (value !== undefined) {
+        updateData[key] = value
+      }
+    }
     
     // Hash new password if provided
     if (input.password) {
-      updateData.passwordHash = await hashPassword(input.password)
-      delete (updateData as UpdateUserInput).password
+      updateData['passwordHash'] = await hashPassword(input.password)
+      delete updateData['password']
     }
 
-    const user = await this.repository.update(id, updateData)
+    const user = await this.repository.update(id, updateData as Partial<CreateUser>)
 
     logger.info('User updated', { userId: id })
 

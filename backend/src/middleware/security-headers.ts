@@ -39,11 +39,11 @@ interface SecurityHeadersConfig {
  * - Cross-Origin-Embedder-Policy: require-corp
  */
 export function securityHeaders(config?: SecurityHeadersConfig) {
-  const enableHSTS = config?.enableHSTS ?? (process.env.ENABLE_HSTS !== 'false')
+  const enableHSTS = config?.enableHSTS ?? (process.env['ENABLE_HSTS'] !== 'false')
   const hstsMaxAge = config?.hstsMaxAge ?? 31536000 // 1 year
   const enableCSP = config?.enableCSP ?? true
-  const reportUri = config?.reportUri ?? process.env.CSP_REPORT_URI
-  const isDev = config?.isDevelopment ?? (process.env.NODE_ENV === 'development')
+  const reportUri = config?.reportUri ?? process.env['CSP_REPORT_URI']
+  const isDev = config?.isDevelopment ?? (process.env['NODE_ENV'] === 'development')
 
   return async (c: Context, next: Next) => {
     // Generate nonce for this request (if needed for scripts)

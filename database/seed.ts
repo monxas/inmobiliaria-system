@@ -4,7 +4,7 @@
  */
 import postgres from 'postgres';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://app:password@localhost:5432/inmobiliaria';
+const DATABASE_URL = process.env['DATABASE_URL'] ?? 'postgresql://app:password@localhost:5432/inmobiliaria';
 const sql = postgres(DATABASE_URL);
 
 async function seed() {
@@ -31,41 +31,50 @@ async function seed() {
   console.log('✅ Sample agent created');
 
   // 3. Sample properties
-  const [agent] = await sql`SELECT id FROM users WHERE email = 'agente@inmobiliaria.local'`;
+  const agentRows = await sql`SELECT id FROM users WHERE email = 'agente@inmobiliaria.local'`;
+  const agent = agentRows[0];
+  const agentId = agent?.['id'] as number | undefined;
   
-  await sql`
-    INSERT INTO properties (title, description, address, city, postal_code, property_type, status, price, surface_area, bedrooms, bathrooms, garage, garden, agent_id)
-    VALUES 
-      ('Piso céntrico en Oviedo', 'Amplio piso de 3 habitaciones en pleno centro, luminoso y reformado. Cerca de todos los servicios.', 'Calle Uría 15, 3ºA', 'Oviedo', '33003', 'apartment', 'available', 250000.00, 95, 3, 2, false, false, ${agent.id}),
-      ('Casa unifamiliar Gijón', 'Casa con jardín y garaje en zona residencial tranquila. Ideal para familias.', 'Avenida de la Costa 45', 'Gijón', '33201', 'house', 'available', 380000.00, 150, 4, 3, true, true, ${agent.id}),
-      ('Local comercial Avilés', 'Local a pie de calle con gran escaparate. Zona comercial consolidada.', 'Calle La Cámara 8', 'Avilés', '33400', 'commercial', 'available', 120000.00, 80, 0, 1, false, false, ${agent.id}),
-      ('Oficina centro Oviedo', 'Oficina moderna en edificio empresarial con parking.', 'Plaza de España 3, 5ºB', 'Oviedo', '33004', 'office', 'reserved', 185000.00, 60, 0, 1, true, false, ${agent.id})
-    ON CONFLICT DO NOTHING
-  `;
-  console.log('✅ Sample properties created');
+  if (agentId) {
+    await sql`
+      INSERT INTO properties (title, description, address, city, postal_code, property_type, status, price, surface_area, bedrooms, bathrooms, garage, garden, agent_id)
+      VALUES 
+        ('Piso céntrico en Oviedo', 'Amplio piso de 3 habitaciones en pleno centro, luminoso y reformado. Cerca de todos los servicios.', 'Calle Uría 15, 3ºA', 'Oviedo', '33003', 'apartment', 'available', 250000.00, 95, 3, 2, false, false, ${agentId}),
+        ('Casa unifamiliar Gijón', 'Casa con jardín y garaje en zona residencial tranquila. Ideal para familias.', 'Avenida de la Costa 45', 'Gijón', '33201', 'house', 'available', 380000.00, 150, 4, 3, true, true, ${agentId}),
+        ('Local comercial Avilés', 'Local a pie de calle con gran escaparate. Zona comercial consolidada.', 'Calle La Cámara 8', 'Avilés', '33400', 'commercial', 'available', 120000.00, 80, 0, 1, false, false, ${agentId}),
+        ('Oficina centro Oviedo', 'Oficina moderna en edificio empresarial con parking.', 'Plaza de España 3, 5ºB', 'Oviedo', '33004', 'office', 'reserved', 185000.00, 60, 0, 1, true, false, ${agentId})
+      ON CONFLICT DO NOTHING
+    `;
+    console.log('✅ Sample properties created');
 
-  // 4. Sample clients
-  await sql`
-    INSERT INTO clients (full_name, email, phone, notes, agent_id)
-    VALUES 
-      ('Carlos López', 'carlos@example.com', '+34 611 222 333', 'Busca piso en Oviedo, presupuesto 200-300k', ${agent.id}),
-      ('Ana Martínez', 'ana@example.com', '+34 622 333 444', 'Interesada en casas con jardín en Gijón', ${agent.id}),
-      ('Pedro Sánchez', 'pedro@example.com', '+34 633 444 555', 'Inversor, busca locales comerciales', ${agent.id})
-    ON CONFLICT DO NOTHING
-  `;
-  console.log('✅ Sample clients created');
+    // 4. Sample clients
+    await sql`
+      INSERT INTO clients (full_name, email, phone, notes, agent_id)
+      VALUES 
+        ('Carlos López', 'carlos@example.com', '+34 611 222 333', 'Busca piso en Oviedo, presupuesto 200-300k', ${agentId}),
+        ('Ana Martínez', 'ana@example.com', '+34 622 333 444', 'Interesada en casas con jardín en Gijón', ${agentId}),
+        ('Pedro Sánchez', 'pedro@example.com', '+34 633 444 555', 'Inversor, busca locales comerciales', ${agentId})
+      ON CONFLICT DO NOTHING
+    `;
+    console.log('✅ Sample clients created');
+  }
 
   // 5. Client-property relationships
-  const [carlos] = await sql`SELECT id FROM clients WHERE email = 'carlos@example.com'`;
-  const [ana] = await sql`SELECT id FROM clients WHERE email = 'ana@example.com'`;
+  const carlosRows = await sql`SELECT id FROM clients WHERE email = 'carlos@example.com'`;
+  const anaRows = await sql`SELECT id FROM clients WHERE email = 'ana@example.com'`;
   const props = await sql`SELECT id, title FROM properties ORDER BY id LIMIT 4`;
 
-  if (carlos && ana && props.length >= 2) {
+  const carlosId = carlosRows[0]?.['id'] as number | undefined;
+  const anaId = anaRows[0]?.['id'] as number | undefined;
+  const prop0Id = props[0]?.['id'] as number | undefined;
+  const prop1Id = props[1]?.['id'] as number | undefined;
+
+  if (carlosId && anaId && prop0Id && prop1Id) {
     await sql`
       INSERT INTO client_properties (client_id, property_id, relationship_type, notes)
       VALUES 
-        (${carlos.id}, ${props[0].id}, 'viewing', 'Visita programada para la semana que viene'),
-        (${ana.id}, ${props[1].id}, 'interested', 'Le interesa pero quiere negociar precio')
+        (${carlosId}, ${prop0Id}, 'viewing', 'Visita programada para la semana que viene'),
+        (${anaId}, ${prop1Id}, 'interested', 'Le interesa pero quiere negociar precio')
       ON CONFLICT DO NOTHING
     `;
     console.log('✅ Client-property relationships created');

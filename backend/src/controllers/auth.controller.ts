@@ -32,7 +32,7 @@ function extractRefreshToken(c: Context, body?: Record<string, unknown>): string
   }
 
   // Fall back to body
-  const token = body?.refreshToken
+  const token = body?.['refreshToken']
   return typeof token === 'string' ? token : null
 }
 

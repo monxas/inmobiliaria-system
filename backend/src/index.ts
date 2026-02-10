@@ -1,22 +1,63 @@
+/**
+ * @fileoverview Application entry point
+ * Level 1 Foundation - Optimized startup
+ */
+
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { correlationId } from './middleware/correlation-id'
 import { securityHeaders } from './middleware/security-headers'
 import { rateLimiter, authRateLimiter } from './middleware/rate-limiter'
 import { requestLogger } from './middleware/logger'
+import { errorHandler } from './middleware/errors'
 import { health, properties, clients, users, documents, auth } from './routes'
 import { logger } from './lib/logger'
+import { container } from './lib/container'
+import { loadConfig } from './config'
+
+// =============================================================================
+// Configuration Validation (fail-fast)
+// =============================================================================
+
+const startTime = performance.now()
+const config = loadConfig()
+
+logger.info('Configuration loaded', {
+  env: config.NODE_ENV,
+  port: config.PORT,
+  logLevel: config.LOG_LEVEL,
+})
+
+// =============================================================================
+// Hono Application
+// =============================================================================
 
 const app = new Hono()
 
 // --- Global middleware stack (order matters) ---
+// 1. Error handling (wrap everything)
+app.use('*', errorHandler())
+
+// 2. Request tracking
 app.use('*', correlationId())
+
+// 3. Security headers
 app.use('*', securityHeaders())
+
+// 4. Rate limiting
 app.use('*', rateLimiter())
+
+// 5. Request logging
 app.use('*', requestLogger())
+
+// 6. CORS
 app.use('*', cors({
-  origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173'],
+  origin: config.CORS_ORIGINS.split(',').map(o => o.trim()),
   credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+  exposeHeaders: ['X-Request-ID', 'X-RateLimit-Remaining'],
+  maxAge: 86400, // 24 hours
 }))
 
 // Stricter rate limit on auth endpoints
@@ -30,10 +71,12 @@ app.route('/api/clients', clients)
 app.route('/api/users', users)
 app.route('/api/documents', documents)
 
+// --- Root endpoint ---
 app.get('/', (c) => {
   return c.json({
     name: 'inmobiliaria-api',
-    version: process.env.APP_VERSION || '0.1.0',
+    version: config.APP_VERSION,
+    status: container.isReady() ? 'ready' : 'starting',
     docs: '/health/detailed',
     endpoints: {
       auth: '/api/auth',
@@ -45,14 +88,52 @@ app.get('/', (c) => {
   })
 })
 
+// --- 404 handler ---
 app.notFound((c) => {
-  return c.json({ error: 'Not found' }, 404)
+  return c.json({ 
+    success: false,
+    error: {
+      message: 'Not found',
+      code: 'NOT_FOUND',
+      statusCode: 404,
+      path: c.req.path,
+    }
+  }, 404)
 })
 
-const port = Number(process.env.PORT) || 3000
-logger.info('server starting', { port })
+// =============================================================================
+// Server Startup
+// =============================================================================
+
+async function bootstrap() {
+  try {
+    // Initialize container (verify database connection)
+    await container.initialize()
+    
+    const startupTime = Math.round(performance.now() - startTime)
+    
+    logger.info('Server ready', {
+      port: config.PORT,
+      env: config.NODE_ENV,
+      startupMs: startupTime,
+      version: config.APP_VERSION,
+    })
+  } catch (error) {
+    logger.fatal('Failed to start server', {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    process.exit(1)
+  }
+}
+
+// Initialize in background (non-blocking)
+bootstrap()
+
+// =============================================================================
+// Export for Bun
+// =============================================================================
 
 export default {
-  port,
+  port: config.PORT,
   fetch: app.fetch,
 }

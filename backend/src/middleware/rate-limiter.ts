@@ -185,8 +185,8 @@ function generateKey(ip: string, prefix: string, userId?: number): string {
  * Generic rate limiter factory
  */
 export function rateLimiter(config?: Partial<RateLimitConfig>) {
-  const windowMs = config?.windowMs ?? (Number(process.env.RATE_LIMIT_WINDOW_MS) || 60_000)
-  const maxRequests = config?.maxRequests ?? (Number(process.env.RATE_LIMIT_MAX) || 100)
+  const windowMs = config?.windowMs ?? (Number(process.env['RATE_LIMIT_WINDOW_MS']) || 60_000)
+  const maxRequests = config?.maxRequests ?? (Number(process.env['RATE_LIMIT_MAX']) || 100)
   const message = config?.message ?? 'Too many requests, please try again later'
   const keyPrefix = config?.keyPrefix ?? 'general'
 

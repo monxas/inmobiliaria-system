@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET
+  const secret = process.env['JWT_SECRET']
   if (!secret) {
     throw new Error('JWT_SECRET environment variable is required')
   }
