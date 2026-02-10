@@ -34,8 +34,9 @@ describe('validation middleware', () => {
       expect(res.status).toBe(400)
       const body = await parseResponse(res)
       expect(body.error.message).toBe('Validation failed')
-      expect(body.error.details).toBeArray()
-      expect(body.error.details[0].field).toBe('email')
+      expect(body.error.details).toBeDefined()
+      expect(body.error.details.errors).toBeArray()
+      expect(body.error.details.errors[0].field).toBe('email')
     })
 
     test('should reject missing required fields', async () => {
