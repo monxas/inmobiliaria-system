@@ -66,7 +66,7 @@ export const requireAuthEnhanced = (options?: AuthOptions) => {
     // Extract token
     const token = extractToken(c)
     if (!token) {
-      return c.json(apiError('Authentication required', 'AUTH_REQUIRED', 401), 401)
+      return c.json(apiError('Authentication required', 401, 'AUTH_REQUIRED'), 401)
     }
 
     try {
@@ -151,13 +151,13 @@ export const requireAuthEnhanced = (options?: AuthOptions) => {
       
       // Map error types to appropriate responses
       if (message === 'Token expired') {
-        return c.json(apiError('Token expired', 'TOKEN_EXPIRED', 401), 401)
+        return c.json(apiError('Token expired', 401, 'TOKEN_EXPIRED'), 401)
       }
       if (message === 'MFA verification required') {
-        return c.json(apiError('MFA verification required', 'MFA_REQUIRED', 403), 403)
+        return c.json(apiError('MFA verification required', 403, 'MFA_REQUIRED'), 403)
       }
       if (message === 'Insufficient permissions') {
-        return c.json(apiError('Insufficient permissions', 'FORBIDDEN', 403), 403)
+        return c.json(apiError('Insufficient permissions', 403, 'FORBIDDEN'), 403)
       }
       
       return c.json(apiError('Invalid token', 'INVALID_TOKEN', 401), 401)
@@ -217,7 +217,7 @@ export const requireOwnershipEnhanced = (
   return async (c: Context<{ Variables: AppVariables }>, next: Next): Promise<Response | void> => {
     const user = c.get('user')
     if (!user) {
-      return c.json(apiError('Authentication required', 'AUTH_REQUIRED', 401), 401)
+      return c.json(apiError('Authentication required', 401, 'AUTH_REQUIRED'), 401)
     }
 
     // Admins bypass ownership check
@@ -260,12 +260,12 @@ export const requireRecentAuth = (maxAgeMinutes: number = 15) => {
   return async (c: Context<{ Variables: AppVariables }>, next: Next): Promise<Response | void> => {
     const user = c.get('user')
     if (!user) {
-      return c.json(apiError('Authentication required', 'AUTH_REQUIRED', 401), 401)
+      return c.json(apiError('Authentication required', 401, 'AUTH_REQUIRED'), 401)
     }
 
     const token = extractToken(c)
     if (!token) {
-      return c.json(apiError('Authentication required', 'AUTH_REQUIRED', 401), 401)
+      return c.json(apiError('Authentication required', 401, 'AUTH_REQUIRED'), 401)
     }
 
     try {

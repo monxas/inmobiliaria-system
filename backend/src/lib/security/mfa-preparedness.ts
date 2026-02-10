@@ -21,7 +21,7 @@ const MFA_CONFIG = {
     digits: 6,
     period: 30,                   // 30 second windows
     window: 1,                    // Allow 1 window before/after for clock drift
-    issuer: process.env.MFA_ISSUER || 'Inmobiliaria System',
+    issuer: process.env['MFA_ISSUER'] ?? 'Inmobiliaria System',
   },
   recovery: {
     codeCount: 10,               // Generate 10 recovery codes
@@ -29,8 +29,8 @@ const MFA_CONFIG = {
   },
   webauthn: {
     rpName: 'Inmobiliaria System',
-    rpId: process.env.WEBAUTHN_RP_ID || 'localhost',
-    origin: process.env.WEBAUTHN_ORIGIN || 'http://localhost:3000',
+    rpId: process.env['WEBAUTHN_RP_ID'] ?? 'localhost',
+    origin: process.env['WEBAUTHN_ORIGIN'] ?? 'http://localhost:3000',
   },
 }
 

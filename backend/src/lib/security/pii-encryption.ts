@@ -239,21 +239,21 @@ export function rotateEncryption(
   newKey: string
 ): string {
   // Temporarily override the key
-  const originalKey = process.env.ENCRYPTION_MASTER_KEY
+  const originalKey = process.env['ENCRYPTION_MASTER_KEY']
   
   try {
     // Decrypt with old key
-    process.env.ENCRYPTION_MASTER_KEY = oldKey
+    process.env['ENCRYPTION_MASTER_KEY'] = oldKey
     keyCache.clear()
     const plaintext = decryptValue(ciphertext, fieldName)
     
     // Encrypt with new key
-    process.env.ENCRYPTION_MASTER_KEY = newKey
+    process.env['ENCRYPTION_MASTER_KEY'] = newKey
     keyCache.clear()
     return encryptValue(plaintext, fieldName)
   } finally {
     // Restore original key
-    process.env.ENCRYPTION_MASTER_KEY = originalKey
+    process.env['ENCRYPTION_MASTER_KEY'] = originalKey
     keyCache.clear()
   }
 }
@@ -263,7 +263,7 @@ export function rotateEncryption(
  */
 export function validateKeyStrength(): { valid: boolean; warnings: string[] } {
   const warnings: string[] = []
-  const key = process.env.ENCRYPTION_MASTER_KEY || ''
+  const key = process.env['ENCRYPTION_MASTER_KEY'] ?? ''
   
   if (key.length < 32) {
     warnings.push('ENCRYPTION_MASTER_KEY should be at least 32 characters')

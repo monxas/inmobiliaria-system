@@ -16,7 +16,7 @@ const log = logger.child({ module: 'account-lockout' })
 // Configuration
 const LOCKOUT_CONFIG = {
   // Maximum failed attempts before lockout
-  maxAttempts: Number(process.env.LOCKOUT_MAX_ATTEMPTS) || 5,
+  maxAttempts: Number(process.env['LOCKOUT_MAX_ATTEMPTS']) || 5,
   
   // Progressive lockout durations (milliseconds)
   lockoutDurations: [

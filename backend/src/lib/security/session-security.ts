@@ -17,7 +17,7 @@ const log = logger.child({ module: 'session-security' })
 // Configuration
 const SESSION_CONFIG = {
   // Maximum concurrent sessions per user
-  maxConcurrentSessions: Number(process.env.MAX_CONCURRENT_SESSIONS) || 5,
+  maxConcurrentSessions: Number(process.env['MAX_CONCURRENT_SESSIONS']) || 5,
   
   // Maximum sessions per device fingerprint
   maxSessionsPerDevice: 2,

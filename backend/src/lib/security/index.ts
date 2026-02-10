@@ -191,18 +191,18 @@ export function securityHealthCheck(): {
   })
   
   // Environment checks
-  const isProduction = process.env.NODE_ENV === 'production'
+  const isProduction = process.env['NODE_ENV'] === 'production'
   
   checks.push({
     name: 'HTTPS Enforced (HSTS)',
-    passed: process.env.ENABLE_HSTS !== 'false',
-    message: process.env.ENABLE_HSTS !== 'false' ? 'HSTS is enabled' : 'HSTS is disabled',
+    passed: process.env['ENABLE_HSTS'] !== 'false',
+    message: process.env['ENABLE_HSTS'] !== 'false' ? 'HSTS is enabled' : 'HSTS is disabled',
   })
   
   checks.push({
     name: 'Secure Cookies',
-    passed: !isProduction || process.env.COOKIE_SECURE === 'true',
-    message: isProduction && process.env.COOKIE_SECURE !== 'true' 
+    passed: !isProduction || process.env['COOKIE_SECURE'] === 'true',
+    message: isProduction && process.env['COOKIE_SECURE'] !== 'true' 
       ? 'Secure cookies should be enabled in production' 
       : 'Cookie security configured correctly',
   })
