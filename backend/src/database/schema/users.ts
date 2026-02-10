@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, timestamp, inet, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, integer, varchar, text, timestamp, inet, pgEnum } from 'drizzle-orm/pg-core';
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
 // Enums
@@ -21,7 +21,7 @@ export const users = pgTable('users', {
 // User Sessions
 export const userSessions = pgTable('user_sessions', {
   id: serial('id').primaryKey(),
-  userId: serial('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   tokenHash: varchar('token_hash', { length: 255 }).notNull(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   ipAddress: inet('ip_address'),
@@ -32,7 +32,7 @@ export const userSessions = pgTable('user_sessions', {
 // Password Resets
 export const passwordResets = pgTable('password_resets', {
   id: serial('id').primaryKey(),
-  userId: serial('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   tokenHash: varchar('token_hash', { length: 255 }).notNull(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   usedAt: timestamp('used_at', { withTimezone: true }),

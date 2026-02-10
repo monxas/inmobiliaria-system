@@ -6,7 +6,10 @@ import postgres from 'postgres';
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://app:password@localhost:5432/inmobiliaria';
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
 const MIGRATIONS_DIR = join(import.meta.dir, 'migrations');
 
 const sql = postgres(DATABASE_URL);
@@ -44,7 +47,7 @@ async function applyMigrations() {
     const content = await readFile(join(MIGRATIONS_DIR, file), 'utf-8');
     console.log(`🔄 Applying: ${file}...`);
 
-    await sql.begin(async (tx) => {
+    await sql.begin(async (tx: any) => {
       await tx.unsafe(content);
       await tx`INSERT INTO _migrations (name) VALUES (${file})`;
     });

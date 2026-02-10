@@ -39,3 +39,31 @@ export const requireRole = (allowedRoles: UserRole[]) => async (c: Context<{ Var
 
   await next()
 }
+
+/**
+ * Middleware to verify the authenticated user owns the resource or is admin.
+ * @param getOwnerId - async function that extracts the owner/agent ID from the request context
+ */
+export const requireOwnership = (
+  getOwnerId: (c: Context<{ Variables: AppVariables }>) => Promise<number | null>
+) => async (c: Context<{ Variables: AppVariables }>, next: Next) => {
+  const user = c.get('user')
+  if (!user) return c.json(apiError('Authentication required', 401), 401)
+
+  // Admins bypass ownership check
+  if (user.role === 'admin') {
+    await next()
+    return
+  }
+
+  const ownerId = await getOwnerId(c)
+  if (ownerId === null) {
+    return c.json(apiError('Resource not found', 404), 404)
+  }
+
+  if (ownerId !== user.id) {
+    return c.json(apiError('You do not have access to this resource', 403), 403)
+  }
+
+  await next()
+}

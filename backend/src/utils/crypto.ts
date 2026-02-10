@@ -1,7 +1,15 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required')
+  }
+  return secret
+}
+
+const JWT_SECRET: string = getJwtSecret()
 const SALT_ROUNDS = 12
 
 export async function hashPassword(password: string): Promise<string> {
@@ -13,7 +21,7 @@ export async function comparePassword(password: string, hash: string): Promise<b
 }
 
 export function signJWT(payload: Record<string, unknown>, expiresIn: string = '7d'): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn })
+  return jwt.sign(payload, JWT_SECRET, { expiresIn } as jwt.SignOptions)
 }
 
 export function verifyJWT<T = Record<string, unknown>>(token: string): T {

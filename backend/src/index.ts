@@ -6,7 +6,10 @@ import { testConnection } from './database/connection'
 const app = new Hono()
 
 app.use('*', logger())
-app.use('*', cors())
+app.use('*', cors({
+  origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173'],
+  credentials: true,
+}))
 
 app.get('/health', async (c) => {
   const checks: Record<string, string> = { api: 'ok' }

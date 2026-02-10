@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, timestamp, integer, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, text, timestamp, integer, pgEnum, unique } from 'drizzle-orm/pg-core';
 import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm';
 import { users } from './users';
 import { properties } from './properties';
@@ -29,7 +29,9 @@ export const clientProperties = pgTable('client_properties', {
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-});
+}, (table) => [
+  unique('uq_client_property').on(table.clientId, table.propertyId),
+]);
 
 // Property Viewings
 export const propertyViewings = pgTable('property_viewings', {
