@@ -1,20 +1,68 @@
 {
   "compilerOptions": {
+    // Target & Module
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    
+    // Strict Type Checking
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    
+    // Additional Checks
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    
+    // Module Interop
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
+    "isolatedModules": true,
+    
+    // Emit
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": ".",
-    "types": ["bun-types"]
+    
+    // Resolution
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    
+    // Types
+    "types": ["bun-types"],
+    
+    // Path Mapping (optional, for cleaner imports)
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["backend/src/*"],
+      "@db/*": ["database/*"]
+    }
   },
-  "include": ["backend/src/**/*", "database/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "backend/src/**/*", 
+    "database/**/*",
+    "backend/tests/**/*"
+  ],
+  "exclude": [
+    "node_modules", 
+    "dist"
+  ]
 }

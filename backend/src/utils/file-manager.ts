@@ -2,17 +2,29 @@ import path from 'path'
 import { mkdir } from 'fs/promises'
 import { ValidationError } from '../types/errors'
 import { signJWT, verifyJWT } from './crypto'
-import type { FileManagerConfig, FileCategory, FileRecord } from '../types'
+import type { FileManagerConfig, FileCategory } from '../types'
 
 const DEFAULT_CONFIG: FileManagerConfig = {
   storagePath: process.env.FILE_STORAGE_PATH || './storage',
   secretKey: process.env.JWT_SECRET || 'dev-secret',
   categories: {
-    images: {
-      maxSize: 5 * 1024 * 1024, // 5MB
-      allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+    property_images: {
+      maxSize: 10 * 1024 * 1024, // 10MB
+      allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     },
-    documents: {
+    property_docs: {
+      maxSize: 25 * 1024 * 1024, // 25MB
+      allowedTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    },
+    client_docs: {
+      maxSize: 25 * 1024 * 1024, // 25MB
+      allowedTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    },
+    contracts: {
+      maxSize: 50 * 1024 * 1024, // 50MB
+      allowedTypes: ['application/pdf'],
+    },
+    other: {
       maxSize: 10 * 1024 * 1024, // 10MB
       allowedTypes: ['application/pdf', 'image/jpeg', 'image/png'],
     },

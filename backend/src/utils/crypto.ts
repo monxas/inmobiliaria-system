@@ -34,7 +34,10 @@ export function generateSecureToken(length: number = 32): string {
   const randomValues = new Uint8Array(length)
   crypto.getRandomValues(randomValues)
   for (let i = 0; i < length; i++) {
-    result += chars[randomValues[i] % chars.length]
+    const byte = randomValues[i]
+    if (byte !== undefined) {
+      result += chars[byte % chars.length]
+    }
   }
   return result
 }

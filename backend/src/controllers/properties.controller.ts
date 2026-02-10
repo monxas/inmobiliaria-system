@@ -1,55 +1,37 @@
-import type { Context } from 'hono'
+/**
+ * @fileoverview Properties controller with type-safe validation.
+ */
+
 import { CRUDController } from './base/crud.controller'
-import { propertiesService, type PropertiesService } from '../services/properties.service'
+import { propertiesService } from '../services/properties.service'
 import type { Property } from '../database/schema'
 import { 
   CreatePropertySchema, 
   UpdatePropertySchema,
+  PropertyFiltersSchema,
   type CreatePropertyInput, 
   type UpdatePropertyInput, 
   type PropertyFilters 
 } from '../validation/schemas'
-import { ValidationError } from '../types/errors'
 
+/**
+ * Controller for property CRUD operations.
+ */
 export class PropertiesController extends CRUDController<
   Property,
   CreatePropertyInput,
   UpdatePropertyInput,
   PropertyFilters
 > {
-  service: PropertiesService = propertiesService
+  protected override readonly service = propertiesService
+  protected override readonly createSchema = CreatePropertySchema
+  protected override readonly updateSchema = UpdatePropertySchema
+  protected override readonly filtersSchema = PropertyFiltersSchema
 
-  protected validateCreateInput(input: any): CreatePropertyInput {
-    const result = CreatePropertySchema.safeParse(input)
-    if (!result.success) {
-      const error = result.error.errors[0]
-      throw new ValidationError(error.path.join('.'), error.message)
-    }
-    return result.data
-  }
-
-  protected validateUpdateInput(input: any): UpdatePropertyInput {
-    const result = UpdatePropertySchema.safeParse(input)
-    if (!result.success) {
-      const error = result.error.errors[0]
-      throw new ValidationError(error.path.join('.'), error.message)
-    }
-    return result.data
-  }
-
-  protected parseFilters(query: Record<string, string>): PropertyFilters {
-    return {
-      city: query.city || undefined,
-      propertyType: query.propertyType as any || undefined,
-      status: query.status as any || undefined,
-      minPrice: query.minPrice || undefined,
-      maxPrice: query.maxPrice || undefined,
-      minBedrooms: query.minBedrooms ? Number(query.minBedrooms) : undefined,
-      minSurface: query.minSurface ? Number(query.minSurface) : undefined,
-      ownerId: query.ownerId ? Number(query.ownerId) : undefined,
-      agentId: query.agentId ? Number(query.agentId) : undefined,
-    }
+  protected override get resourceName(): string {
+    return 'Property'
   }
 }
 
+/** Singleton controller instance */
 export const propertiesController = new PropertiesController()

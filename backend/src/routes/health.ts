@@ -1,7 +1,6 @@
 import { Hono } from 'hono'
 import { testConnection } from '../database/connection'
-import { logger } from '../lib/logger'
-import { existsSync, statfsSync } from 'fs'
+import { statfsSync } from 'fs'
 
 const health = new Hono()
 

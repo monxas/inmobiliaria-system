@@ -14,9 +14,7 @@ import {
   UpdatePropertySchema,
   ClientSchema,
   CreateClientSchema,
-  UpdateClientSchema,
   UserSchema,
-  DocumentSchema,
   PaginationQuerySchema,
 } from './schemas'
 
