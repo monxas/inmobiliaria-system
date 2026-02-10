@@ -1,0 +1,5 @@
+export * from './base/crud.controller'
+export * from './properties.controller'
+export * from './clients.controller'
+export * from './users.controller'
+export * from './documents.controller'

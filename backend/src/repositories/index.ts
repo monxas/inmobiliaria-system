@@ -1,0 +1,5 @@
+export * from './base/crud.repository'
+export * from './properties.repository'
+export * from './clients.repository'
+export * from './users.repository'
+export * from './documents.repository'

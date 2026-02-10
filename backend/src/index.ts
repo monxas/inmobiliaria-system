@@ -4,7 +4,7 @@ import { correlationId } from './middleware/correlation-id'
 import { securityHeaders } from './middleware/security-headers'
 import { rateLimiter, authRateLimiter } from './middleware/rate-limiter'
 import { requestLogger } from './middleware/logger'
-import { health } from './routes/health'
+import { health, properties, clients, users, documents, auth } from './routes'
 import { logger } from './lib/logger'
 
 const app = new Hono()
@@ -24,12 +24,24 @@ app.use('/api/auth/*', authRateLimiter())
 
 // --- Routes ---
 app.route('/health', health)
+app.route('/api/auth', auth)
+app.route('/api/properties', properties)
+app.route('/api/clients', clients)
+app.route('/api/users', users)
+app.route('/api/documents', documents)
 
 app.get('/', (c) => {
   return c.json({
     name: 'inmobiliaria-api',
     version: process.env.APP_VERSION || '0.1.0',
     docs: '/health/detailed',
+    endpoints: {
+      auth: '/api/auth',
+      properties: '/api/properties',
+      clients: '/api/clients',
+      users: '/api/users',
+      documents: '/api/documents',
+    }
   })
 })
 
