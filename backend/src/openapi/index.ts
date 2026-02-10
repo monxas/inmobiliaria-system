@@ -98,7 +98,7 @@ This API is designed to be consumed by AI agents. Key patterns:
 // Scalar API Reference UI (modern Swagger alternative)
 openApiApp.get('/docs', apiReference({
   theme: 'kepler',
-  spec: { url: '/api/openapi.json' },
+  url: '/api/openapi.json',
   pageTitle: 'Inmobiliaria API Docs',
 }))
 
