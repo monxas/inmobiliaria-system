@@ -107,12 +107,13 @@
 - [x] **Frontend SvelteKit scaffolding** - Estructura base + UI components
 - [x] **Schema extensions** - User profiles, notifications, permissions
 - [x] **Backend extensions** - Image processor, document shares, email service
-- [ ] **Auth Frontend** - Login/logout + protected routes + JWT handling
-- [ ] **Properties CRUD Frontend** - Admin dashboard para propiedades
-- [ ] **Clients CRUD Frontend** - Gestión de clientes
-- [ ] **File Upload UI** - Galería de imágenes + documentos
-- [ ] **Dashboard Home** - Métricas básicas + actividad reciente
-- [ ] **User management UI** - Admin panel para usuarios/roles
+- [ ] **⏳ FIGMA MOCKUPS** - Esperando delivery de SwitchBot/Figma Make workflow
+- [ ] **Auth Frontend** - Login/logout + protected routes + JWT handling *(post-Figma)*
+- [ ] **Properties CRUD Frontend** - Admin dashboard para propiedades *(post-Figma)*
+- [ ] **Clients CRUD Frontend** - Gestión de clientes *(post-Figma)*
+- [ ] **File Upload UI** - Galería de imágenes + documentos *(post-Figma)*
+- [ ] **Dashboard Home** - Métricas básicas + actividad reciente *(post-Figma)*
+- [ ] **User management UI** - Admin panel para usuarios/roles *(post-Figma)*
 
 ### Documentación Level 3
 - `docs/LEVEL3-PLAN.md` - Plan detallado con arquitectura + workflow

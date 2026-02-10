@@ -87,6 +87,33 @@ frontend/
 - `DocumentList.svelte` - File list + download/share
 - `DashboardMetrics.svelte` - Cards with stats
 
+## 🎨 FIGMA DESIGN REFERENCE
+
+### **Design Status**
+- **Source:** SwitchBot/Figma Make workflow  
+- **Priority Screens:** Dashboard overview, Properties CRUD, Client management, Document upload, User settings
+- **Style Reference:** Modern SaaS dashboards (Linear, Notion style) - clean, professional, real estate focused
+- **Status:** ⏳ **PENDING DELIVERY** - Waiting for Figma mockups before UI implementation
+
+### **Design Requirements Sent to Figma Make**
+- **Target Users:** Admin, Real Estate Agents, Property Owners
+- **Tech Stack Alignment:** SvelteKit + TailwindCSS aesthetic
+- **Device Support:** Desktop-first, tablet responsive  
+- **Color Palette:** Blues/grays for trust + accent colors for actions
+- **Components:** Cards-based layout, generic CRUD tables, clean forms
+- **Role-Based Views:** Admin (full access), Agent (limited), Client (read-only)
+
+### **Implementation Strategy**
+1. **Wait for Figma delivery** ⏳
+2. **Extract design tokens** (colors, typography, spacing, components)
+3. **Create Tailwind config** based on Figma design system
+4. **Build component library** matching exact Figma components
+5. **Implement layouts** screen by screen following mockups
+
+**⚠️ CRITICAL:** No UI implementation should start until Figma mockups are delivered and reviewed.
+
+---
+
 ## 🔌 API INTEGRATION
 
 ### **Auth Flow**
@@ -213,17 +240,18 @@ test('can create new property', async ({ page }) => {
 
 ## 🚀 DEVELOPMENT WORKFLOW
 
-### **Phase 1: Core Foundation (Week 1)**
-1. Setup SvelteKit project + TailwindCSS
-2. Implement auth flow (login/logout/protected routes)
-3. Build base UI components (Button, Input, Card, etc.)
-4. Create layout structure (Sidebar, Header)
+### **Phase 1: Design Foundation (Week 1)**
+1. **⏳ ESPERANDO:** Figma mockups del workflow SwitchBot/Figma Make  
+2. Setup SvelteKit project + TailwindCSS (⚠️ Alineado con designs)
+3. Implement auth flow (login/logout/protected routes)
+4. Build base UI components siguiendo Figma design system
+5. Create layout structure (Sidebar, Header) según mockups
 
 ### **Phase 2: CRUD Features (Week 2)**
-1. Properties CRUD pages + forms
-2. Clients CRUD pages + forms  
+1. Properties CRUD pages + forms (siguiendo Figma screens)
+2. Clients CRUD pages + forms (siguiendo Figma screens) 
 3. API integration + error handling
-4. Basic file upload functionality
+4. Basic file upload functionality según mockups
 
 ### **Phase 3: Enhanced UX (Week 3)**
 1. Dashboard metrics + charts
