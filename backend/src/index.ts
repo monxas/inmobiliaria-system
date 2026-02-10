@@ -105,7 +105,7 @@ app.notFound((c) => {
 // Server Startup
 // =============================================================================
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   try {
     // Initialize container (verify database connection)
     await container.initialize()
@@ -126,8 +126,8 @@ async function bootstrap() {
   }
 }
 
-// Initialize in background (non-blocking)
-bootstrap()
+// Initialize in background (non-blocking) - void operator indicates intentional fire-and-forget
+void bootstrap()
 
 // =============================================================================
 // Export for Bun

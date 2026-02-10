@@ -1,5 +1,6 @@
 import { describe, test, expect } from 'bun:test'
 import { apiResponse, apiError } from '../../../src/utils/response'
+import { ErrorCodes } from '../../../src/types/errors'
 
 describe('response utils', () => {
   describe('apiResponse', () => {
@@ -32,20 +33,22 @@ describe('response utils', () => {
   describe('apiError', () => {
     test('should create error response with defaults', () => {
       const result = apiError('Something failed')
-      expect(result).toEqual({
-        success: false,
-        error: { message: 'Something failed', code: 500 },
-      })
+      expect(result.success).toBe(false)
+      expect(result.error.message).toBe('Something failed')
+      expect(result.error.statusCode).toBe(500)
+      expect(result.error.code).toBe(ErrorCodes.INTERNAL_ERROR)
+      expect(result.error.timestamp).toBeDefined()
     })
 
-    test('should use provided code', () => {
-      const result = apiError('Not found', 404)
-      expect(result.error.code).toBe(404)
+    test('should use provided statusCode and code', () => {
+      const result = apiError('Not found', 404, ErrorCodes.RESOURCE_NOT_FOUND)
+      expect(result.error.statusCode).toBe(404)
+      expect(result.error.code).toBe(ErrorCodes.RESOURCE_NOT_FOUND)
     })
 
     test('should include details when provided', () => {
-      const details = [{ field: 'email', message: 'required' }]
-      const result = apiError('Validation', 400, details)
+      const details = { field: 'email', reason: 'required' }
+      const result = apiError('Validation', 400, ErrorCodes.VALIDATION_FAILED, details)
       expect(result.error.details).toEqual(details)
     })
 

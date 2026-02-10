@@ -36,7 +36,10 @@
     "format": "bunx prettier --write .",
     "format:check": "bunx prettier --check .",
     "quality": "bun run typecheck && bun run lint && bun run format:check",
-    "quality:fix": "bun run lint:fix && bun run format"
+    "quality:fix": "bun run lint:fix && bun run format",
+    "quality:metrics": "bun run scripts/quality-metrics.ts",
+    "quality:report": "bun run scripts/quality-metrics.ts --output docs/QUALITY-METRICS.md",
+    "docs:serve": "bunx serve docs"
   },
   "keywords": [
     "inmobiliaria",
