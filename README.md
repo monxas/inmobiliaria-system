@@ -1,87 +1,71 @@
-# 🏠 Sistema de Gestión Inmobiliaria
-**Self-hosted | NAS-optimized | LLM-ready**
+# 🏠 Sistema Inmobiliaria
 
-> **Estado:** 📋 Documentación técnica en desarrollo  
-> **Versión:** 0.1.0-planning  
-> **Stack:** Bun + Hono + PostgreSQL + SvelteKit
+Sistema de gestión inmobiliaria self-hosted optimizado para NAS.
 
----
+## Stack
+- **Runtime:** Bun + Hono
+- **Database:** PostgreSQL 16 Alpine
+- **Cache:** KeyDB (Redis-compatible)
+- **Frontend:** SvelteKit (Nivel 2+)
 
-## 🎯 NIVELES Y OBJETIVOS
+## Quick Start
 
-### **Nivel 0 — Documentación Técnica** ✅ En progreso
-- [ ] Sistema-spec actualizado con stack final
-- [ ] Schema de base de datos completo (incluye imágenes propiedades)  
-- [ ] Arquitectura de componentes reutilizables definida
-- [ ] Guías para agentes de desarrollo
-- [ ] Templates y convenciones establecidas
-
-### **Nivel 1 — Fundación** 
-- [ ] Docker compose funcional
-- [ ] PostgreSQL + migraciones
-- [ ] Bun + Hono básico con health checks
-- [ ] Estructura de carpetas establecida
-- [ ] CI/CD básico
-
-### **Nivel 2 — Core API**
-- [ ] Auth + JWT + roles
-- [ ] CRUD base genérico reutilizable  
-- [ ] Modelos usuarios/clientes/propiedades
-- [ ] API documentada con OpenAPI
-- [ ] Tests unitarios
-
-### **Nivel 3 — Funcionalidad Esencial**
-- [ ] Upload de documentos con tokens seguros
-- [ ] Galería de imágenes de propiedades
-- [ ] Frontend básico (login + listados)
-- [ ] Notificaciones básicas
-
-### **Nivel 4 — Preparación Producción**
-- [ ] Monitoreo y logs
-- [ ] Backups automatizados
-- [ ] Deploy en NAS
-- [ ] Performance optimización
-
-### **Nivel 5 — LLM Integration**
-- [ ] API para agentes IA
-- [ ] Webhooks + dry-run mode
-- [ ] Automatizaciones inteligentes
-
----
-
-## 📁 ESTRUCTURA
-
-```
-inmobiliaria-system/
-├── docs/                    # Documentación técnica
-│   ├── TECH-SPEC.md        # Especificaciones técnicas actualizadas
-│   ├── COMPONENTS.md       # Arquitectura componentes reutilizables
-│   ├── DATABASE.md         # Schema y migraciones
-│   ├── API-DESIGN.md       # Diseño API + OpenAPI
-│   └── AGENTS-GUIDE.md     # Guías para agentes de desarrollo
-├── backend/                # API Bun + Hono
-├── frontend/               # SvelteKit frontend único
-├── database/               # Migraciones y seeders
-├── docker/                 # Docker configs
-├── .github/workflows/      # CI/CD
-└── scripts/               # Utilidades y deploy
+### 1. Setup
+```bash
+bash scripts/setup.sh
+# Review .env file
 ```
 
----
+### 2. Development (local Bun + Docker DB)
+```bash
+bash scripts/dev.sh
+```
 
-## 🔧 METODOLOGÍA
+### 3. Full Docker
+```bash
+docker compose up -d
+```
 
-**"Base Sólida" - Un nivel a la vez:**
-1. **No pasar al siguiente nivel** hasta completar el actual
-2. **Cada nivel tiene gate de validación**
-3. **Componentes genéricos y reutilizables** desde el inicio  
-4. **Documentación primero**, código después
-5. **Testing integrado** desde Nivel 2
+### 4. Run migrations
+```bash
+export DATABASE_URL="postgresql://app:PASSWORD@localhost:5432/inmobiliaria"
+bun run db:migrate
+```
 
----
+## Endpoints
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | API info |
+| GET | `/health` | Health check (API + DB status) |
 
-## 📋 ESTADO ACTUAL
+## Project Structure
+```
+├── backend/src/          # Hono API server
+│   ├── index.ts          # Entry point
+│   ├── database/         # Connection + schema (Drizzle)
+│   ├── controllers/      # HTTP handlers
+│   ├── services/         # Business logic
+│   ├── repositories/     # Data access
+│   ├── middleware/        # Auth, errors, logging
+│   └── utils/            # Helpers
+├── database/
+│   ├── migrations/       # SQL migrations
+│   └── seeds/            # Seed data
+├── docker-compose.yml    # PostgreSQL + KeyDB + Backend
+├── Dockerfile            # Multi-stage Bun build
+└── docs/                 # Specs & guides
+```
 
-**Trabajando en:** Nivel 0 - Documentación técnica  
-**Último commit:** Repo inicial creado  
-**Siguiente:** Arreglar inconsistencias detectadas por agentes de auditoría
+## Resource Usage
+Target: <1.2GB RAM total
+- PostgreSQL: ~384MB limit
+- KeyDB: ~96MB limit  
+- Backend: ~512MB limit
+
+## Scripts
+- `bun run dev` — Watch mode
+- `bun run build` — Production build
+- `bun run start` — Start built app
+- `bun run db:migrate` — Apply migrations
+- `bun run db:seed` — Seed database
+- `bun run docker:up` — Docker compose up

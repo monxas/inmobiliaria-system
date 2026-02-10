@@ -5,11 +5,9 @@ import { testConnection } from './database/connection'
 
 const app = new Hono()
 
-// Middleware
 app.use('*', logger())
 app.use('*', cors())
 
-// Health endpoint
 app.get('/health', async (c) => {
   const checks: Record<string, string> = { api: 'ok' }
   let healthy = true
@@ -31,7 +29,6 @@ app.get('/health', async (c) => {
   }, status)
 })
 
-// Root
 app.get('/', (c) => {
   return c.json({
     name: 'inmobiliaria-api',
@@ -40,12 +37,10 @@ app.get('/', (c) => {
   })
 })
 
-// 404
 app.notFound((c) => {
   return c.json({ error: 'Not found' }, 404)
 })
 
-// Start
 const port = Number(process.env.PORT) || 3000
 console.log(`🏠 Inmobiliaria API starting on port ${port}`)
 
