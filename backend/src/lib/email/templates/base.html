@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{subject}}</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style>
+    /* Reset */
+    body, table, td, p, a, li, blockquote {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+    }
+    
+    /* Base Styles */
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    /* Container */
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+    
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      padding: 32px 40px;
+      text-align: center;
+    }
+    .logo {
+      max-height: 48px;
+      width: auto;
+    }
+    .header-title {
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 16px 0 0 0;
+      line-height: 1.3;
+    }
+    
+    /* Content */
+    .content {
+      padding: 40px;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 600;
+      color: #18181b;
+      margin: 0 0 16px 0;
+    }
+    .text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #3f3f46;
+      margin: 0 0 16px 0;
+    }
+    
+    /* Buttons */
+    .button-container {
+      text-align: center;
+      margin: 32px 0;
+    }
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+    }
+    .button:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    }
+    .button-secondary {
+      background: #f4f4f5;
+      color: #3f3f46 !important;
+      box-shadow: none;
+      border: 1px solid #e4e4e7;
+    }
+    
+    /* Info Box */
+    .info-box {
+      background-color: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 16px 20px;
+      margin: 24px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .info-box-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d4ed8;
+      margin: 0 0 8px 0;
+    }
+    .info-box-content {
+      font-size: 14px;
+      color: #3f3f46;
+      margin: 0;
+    }
+    
+    /* Property Card */
+    .property-card {
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 24px 0;
+    }
+    .property-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .property-details {
+      padding: 20px;
+    }
+    .property-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #18181b;
+      margin: 0 0 8px 0;
+    }
+    .property-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: #3b82f6;
+      margin: 0 0 8px 0;
+    }
+    .property-location {
+      font-size: 14px;
+      color: #71717a;
+      margin: 0;
+    }
+    
+    /* Stats Row */
+    .stats-row {
+      display: flex;
+      background-color: #f9fafb;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 24px 0;
+    }
+    .stat-item {
+      flex: 1;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #3b82f6;
+      display: block;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Footer */
+    .footer {
+      background-color: #f9fafb;
+      padding: 32px 40px;
+      text-align: center;
+      border-top: 1px solid #e4e4e7;
+    }
+    .footer-text {
+      font-size: 14px;
+      color: #71717a;
+      margin: 0 0 16px 0;
+    }
+    .footer-links {
+      margin: 0 0 16px 0;
+    }
+    .footer-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 14px;
+      margin: 0 12px;
+    }
+    .social-links {
+      margin-top: 16px;
+    }
+    .social-icon {
+      display: inline-block;
+      margin: 0 8px;
+    }
+    .unsubscribe {
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-top: 24px;
+    }
+    .unsubscribe a {
+      color: #a1a1aa;
+    }
+    
+    /* Responsive */
+    @media screen and (max-width: 600px) {
+      .email-container {
+        width: 100% !important;
+      }
+      .header, .content, .footer {
+        padding: 24px !important;
+      }
+      .header-title {
+        font-size: 20px !important;
+      }
+      .greeting {
+        font-size: 16px !important;
+      }
+      .text {
+        font-size: 14px !important;
+      }
+      .button {
+        display: block !important;
+        padding: 12px 24px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f4f5;">
+    <tr>
+      <td style="padding: 24px 16px;">
+        <table class="email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" align="center" style="margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td class="header">
+              {{#if logoUrl}}
+              <img src="{{logoUrl}}" alt="InmoPro" class="logo">
+              {{else}}
+              <div style="font-size: 28px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">InmoPro</div>
+              {{/if}}
+              {{#if headerTitle}}
+              <h1 class="header-title">{{headerTitle}}</h1>
+              {{/if}}
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td class="content">
+              {{{content}}}
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td class="footer">
+              <p class="footer-text">
+                Este email fue enviado por InmoPro, tu plataforma inmobiliaria de confianza.
+              </p>
+              <div class="footer-links">
+                <a href="{{appUrl}}" class="footer-link">Ir a la app</a>
+                <a href="{{appUrl}}/configuracion" class="footer-link">Configuración</a>
+                <a href="{{appUrl}}/ayuda" class="footer-link">Ayuda</a>
+              </div>
+              {{#if showUnsubscribe}}
+              <p class="unsubscribe">
+                ¿No quieres recibir estos emails? 
+                <a href="{{appUrl}}/configuracion/notificaciones?unsubscribe={{unsubscribeToken}}">
+                  Gestionar preferencias
+                </a>
+              </p>
+              {{/if}}
+              <p style="font-size: 12px; color: #a1a1aa; margin-top: 16px;">
+                © {{currentYear}} InmoPro. Todos los derechos reservados.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

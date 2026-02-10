@@ -1,0 +1,36 @@
+{
+  "name": "inmobiliaria-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^3.3.1",
+    "@sveltejs/kit": "^2.15.1",
+    "@sveltejs/vite-plugin-svelte": "^4.0.4",
+    "@tailwindcss/forms": "^0.5.10",
+    "@types/node": "^22.10.7",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.1",
+    "svelte": "^5.19.0",
+    "svelte-check": "^4.1.4",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  },
+  "dependencies": {
+    "bits-ui": "^1.0.0-next.78",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-svelte": "^0.474.0",
+    "mode-watcher": "^0.5.1",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^3.24.1"
+  },
+  "type": "module"
+}

@@ -66,3 +66,29 @@ export async function measureTime<T>(fn: () => Promise<T>): Promise<{ result: T;
   const durationMs = performance.now() - start
   return { result, durationMs }
 }
+
+/**
+ * Create a test user in the database (mock for unit tests).
+ * In integration tests, this would actually create a user.
+ */
+export async function createTestUser(data: {
+  email: string
+  password: string
+  fullName: string
+  role?: UserRole
+}): Promise<{ id: number; email: string; role: UserRole }> {
+  // For unit tests, return a mock user
+  return {
+    id: 1,
+    email: data.email,
+    role: data.role ?? 'agent',
+  }
+}
+
+/**
+ * Clean up test users from database (mock for unit tests).
+ * In integration tests, this would delete test users.
+ */
+export async function cleanupTestUsers(): Promise<void> {
+  // For unit tests, this is a no-op
+}
