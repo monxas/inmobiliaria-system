@@ -11,8 +11,8 @@ if [ ! -f .env ]; then
   # Generate random passwords
   DB_PASS=$(openssl rand -hex 16)
   JWT_SEC=$(openssl rand -hex 32)
-  sed -i "s/changeme_secure_password/$DB_PASS/" .env
-  sed -i "s/changeme_jwt_secret_min_32_chars/$JWT_SEC/" .env
+  sed -i "s/CHANGE_ME_STRONG_PASSWORD/$DB_PASS/" .env
+  sed -i "s/CHANGE_ME_GENERATE_WITH_openssl_rand_base64_32/$JWT_SEC/" .env
   echo "✅ .env created with random secrets"
   echo "⚠️  Review .env before starting!"
 else

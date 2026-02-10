@@ -9,5 +9,6 @@ CREATE TABLE client_properties (
   relationship_type client_property_relationship NOT NULL DEFAULT 'interested',
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uq_client_property UNIQUE (client_id, property_id)
 );

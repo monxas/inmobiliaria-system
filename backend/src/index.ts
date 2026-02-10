@@ -1,42 +1,35 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
-import { testConnection } from './database/connection'
+import { correlationId } from './middleware/correlation-id'
+import { securityHeaders } from './middleware/security-headers'
+import { rateLimiter, authRateLimiter } from './middleware/rate-limiter'
+import { requestLogger } from './middleware/logger'
+import { health } from './routes/health'
+import { logger } from './lib/logger'
 
 const app = new Hono()
 
-app.use('*', logger())
+// --- Global middleware stack (order matters) ---
+app.use('*', correlationId())
+app.use('*', securityHeaders())
+app.use('*', rateLimiter())
+app.use('*', requestLogger())
 app.use('*', cors({
   origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173'],
   credentials: true,
 }))
 
-app.get('/health', async (c) => {
-  const checks: Record<string, string> = { api: 'ok' }
-  let healthy = true
+// Stricter rate limit on auth endpoints
+app.use('/api/auth/*', authRateLimiter())
 
-  try {
-    await testConnection()
-    checks.database = 'ok'
-  } catch {
-    checks.database = 'error'
-    healthy = false
-  }
-
-  const status = healthy ? 200 : 503
-  return c.json({
-    status: healthy ? 'healthy' : 'degraded',
-    timestamp: new Date().toISOString(),
-    version: '0.1.0',
-    checks,
-  }, status)
-})
+// --- Routes ---
+app.route('/health', health)
 
 app.get('/', (c) => {
   return c.json({
     name: 'inmobiliaria-api',
-    version: '0.1.0',
-    docs: '/health',
+    version: process.env.APP_VERSION || '0.1.0',
+    docs: '/health/detailed',
   })
 })
 
@@ -45,7 +38,7 @@ app.notFound((c) => {
 })
 
 const port = Number(process.env.PORT) || 3000
-console.log(`🏠 Inmobiliaria API starting on port ${port}`)
+logger.info('server starting', { port })
 
 export default {
   port,

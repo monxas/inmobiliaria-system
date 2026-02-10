@@ -20,6 +20,8 @@
     "jsonwebtoken": "^9.0.0"
   },
   "devDependencies": {
+    "@hono/zod-openapi": "^1.2.1",
+    "@scalar/hono-api-reference": "^0.9.40",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.0",
     "drizzle-kit": "^0.30.0",
