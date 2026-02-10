@@ -16,11 +16,11 @@ const log = logger.child({ module: 'jwt-advanced' })
 
 // Configuration with secure defaults
 const JWT_CONFIG = {
-  issuer: process.env.JWT_ISSUER || 'inmobiliaria-system',
-  audience: process.env.JWT_AUDIENCE || 'inmobiliaria-api',
+  issuer: process.env['JWT_ISSUER'] ?? 'inmobiliaria-system',
+  audience: process.env['JWT_AUDIENCE'] ?? 'inmobiliaria-api',
   algorithm: 'HS256' as const,
-  accessTokenExpiry: process.env.ACCESS_TOKEN_EXPIRY || '15m',
-  refreshTokenExpiry: process.env.REFRESH_TOKEN_EXPIRY || '7d',
+  accessTokenExpiry: process.env['ACCESS_TOKEN_EXPIRY'] ?? '15m',
+  refreshTokenExpiry: process.env['REFRESH_TOKEN_EXPIRY'] ?? '7d',
 }
 
 // Token types for strict validation
@@ -61,7 +61,7 @@ export interface VerifyOptions {
 }
 
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET
+  const secret = process.env['JWT_SECRET']
   if (!secret) {
     throw new Error('JWT_SECRET environment variable is required')
   }
@@ -124,12 +124,12 @@ export function signAdvancedJWT(
     ...options.additionalClaims,
   }
   
-  const expiresIn = options.expiresIn || 
+  const expiresIn: string = options.expiresIn ?? 
     (options.type === 'access' ? JWT_CONFIG.accessTokenExpiry : JWT_CONFIG.refreshTokenExpiry)
   
   const token = jwt.sign(fullPayload, getJwtSecret(), {
     algorithm: JWT_CONFIG.algorithm,
-    expiresIn,
+    expiresIn: expiresIn as jwt.SignOptions['expiresIn'],
   })
   
   log.debug('JWT signed', { 
@@ -235,7 +235,7 @@ export function extractJti(token: string): string | null {
  */
 export function validateSecretStrength(): { valid: boolean; warnings: string[] } {
   const warnings: string[] = []
-  const secret = process.env.JWT_SECRET || ''
+  const secret = process.env['JWT_SECRET'] ?? ''
   
   if (secret.length < 32) {
     warnings.push('JWT_SECRET should be at least 32 characters')

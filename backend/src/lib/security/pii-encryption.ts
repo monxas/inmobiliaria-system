@@ -52,7 +52,7 @@ const keyCache = new Map<string, Buffer>()
  * Get or derive encryption key from master key
  */
 function getEncryptionKey(purpose: string = 'default'): Buffer {
-  const masterKey = process.env.ENCRYPTION_MASTER_KEY
+  const masterKey = process.env['ENCRYPTION_MASTER_KEY']
   if (!masterKey) {
     throw new Error('ENCRYPTION_MASTER_KEY environment variable is required')
   }

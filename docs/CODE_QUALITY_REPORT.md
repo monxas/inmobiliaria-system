@@ -34,11 +34,17 @@ The codebase has been elevated from 9.5/10 to **10/10** through comprehensive im
 ### After (10/10)
 ```json
 {
-  "exactOptionalPropertyTypes": true,
-  "noPropertyAccessFromIndexSignature": true,
-  "verbatimModuleSyntax": false
+  "noUncheckedIndexedAccess": true,
+  "noImplicitOverride": true,
+  "useUnknownInCatchVariables": true,
+  "noFallthroughCasesInSwitch": true,
+  "noImplicitReturns": true
 }
 ```
+
+> **Note:** `exactOptionalPropertyTypes` and `noPropertyAccessFromIndexSignature` 
+> are documented but disabled pending codebase-wide migration. These represent
+> the next level of strictness when needed.
 
 ### Strictness Checklist
 

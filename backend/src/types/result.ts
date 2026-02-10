@@ -75,10 +75,10 @@ export function err<E extends string>(
   message: string,
   details?: Record<string, unknown>
 ): Err<E> {
-  return {
-    ok: false,
-    error: { code, message, details },
-  }
+  const error: ResultError<E> = details 
+    ? { code, message, details } 
+    : { code, message }
+  return { ok: false, error }
 }
 
 // ============================================
@@ -89,14 +89,14 @@ export function err<E extends string>(
  * Check if a result is Ok.
  */
 export function isOk<T, E extends string>(result: Result<T, E>): result is Ok<T> {
-  return result.ok
+  return result.ok === true
 }
 
 /**
  * Check if a result is Err.
  */
 export function isErr<T, E extends string>(result: Result<T, E>): result is Err<E> {
-  return !result.ok
+  return result.ok === false
 }
 
 // ============================================
@@ -107,7 +107,7 @@ export function isErr<T, E extends string>(result: Result<T, E>): result is Err<
  * Unwrap a result, throwing if it's an error.
  */
 export function unwrap<T, E extends string>(result: Result<T, E>): T {
-  if (result.ok) {
+  if (isOk(result)) {
     return result.value
   }
   throw new Error(`Unwrap failed: [${result.error.code}] ${result.error.message}`)
@@ -117,7 +117,10 @@ export function unwrap<T, E extends string>(result: Result<T, E>): T {
  * Unwrap a result with a default value for errors.
  */
 export function unwrapOr<T, E extends string>(result: Result<T, E>, defaultValue: T): T {
-  return result.ok ? result.value : defaultValue
+  if (isOk(result)) {
+    return result.value
+  }
+  return defaultValue
 }
 
 /**
@@ -127,7 +130,11 @@ export function map<T, U, E extends string>(
   result: Result<T, E>,
   fn: (value: T) => U
 ): Result<U, E> {
-  return result.ok ? ok(fn(result.value)) : result
+  if (isOk(result)) {
+    return ok(fn(result.value))
+  }
+  // Explicitly create a new Err to satisfy type inference
+  return { ok: false, error: result.error }
 }
 
 /**
@@ -137,7 +144,10 @@ export function mapErr<T, E extends string, F extends string>(
   result: Result<T, E>,
   fn: (error: ResultError<E>) => ResultError<F>
 ): Result<T, F> {
-  return result.ok ? result : { ok: false, error: fn(result.error) }
+  if (isOk(result)) {
+    return result
+  }
+  return { ok: false, error: fn(result.error) }
 }
 
 /**
@@ -147,7 +157,11 @@ export function flatMap<T, U, E extends string>(
   result: Result<T, E>,
   fn: (value: T) => Result<U, E>
 ): Result<U, E> {
-  return result.ok ? fn(result.value) : result
+  if (isOk(result)) {
+    return fn(result.value)
+  }
+  // Explicitly create a new Err to satisfy type inference
+  return { ok: false, error: result.error }
 }
 
 /**
@@ -155,13 +169,13 @@ export function flatMap<T, U, E extends string>(
  * Returns the first error encountered, or an array of values.
  */
 export function combine<T, E extends string>(
-  results: Result<T, E>[]
+  results: readonly Result<T, E>[]
 ): Result<T[], E> {
   const values: T[] = []
   
   for (const result of results) {
-    if (!result.ok) {
-      return result
+    if (isErr(result)) {
+      return { ok: false, error: result.error }
     }
     values.push(result.value)
   }

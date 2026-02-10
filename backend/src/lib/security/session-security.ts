@@ -395,8 +395,8 @@ export function getSessionStats() {
  */
 export function detectSuspiciousActivity(
   userId: number,
-  currentIP: string,
-  currentUserAgent: string
+  _currentIP: string,
+  _currentUserAgent: string
 ): { suspicious: boolean; reasons: string[] } {
   const sessions = sessionStore.getByUserId(userId)
   const reasons: string[] = []
