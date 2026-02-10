@@ -5,6 +5,7 @@ import { properties } from './properties';
 
 // Enums
 export const clientPropertyRelationshipEnum = pgEnum('client_property_relationship', ['interested', 'viewing', 'offer_made', 'contracted']);
+export const viewingStatusEnum = pgEnum('viewing_status', ['scheduled', 'completed', 'cancelled', 'no_show']);
 
 // Clients
 export const clients = pgTable('clients', {
@@ -41,7 +42,7 @@ export const propertyViewings = pgTable('property_viewings', {
   agentId: integer('agent_id').references(() => users.id).notNull(),
   scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
   durationMinutes: integer('duration_minutes').default(60),
-  status: varchar('status', { length: 50 }).default('scheduled'),
+  status: viewingStatusEnum('status').notNull().default('scheduled'),
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),

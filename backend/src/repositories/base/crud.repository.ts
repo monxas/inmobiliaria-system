@@ -1,4 +1,4 @@
-import { eq, isNull, sql, type SQL } from 'drizzle-orm'
+import { and, eq, isNull, sql, type SQL } from 'drizzle-orm'
 import type { PgTableWithColumns } from 'drizzle-orm/pg-core'
 import type { Database } from '../../database/connection'
 
@@ -22,11 +22,12 @@ export abstract class CRUDRepository<TEntity> {
       conditions.push(isNull((this.table as any).deleted_at))
     }
 
-    let query = this.db.select().from(this.table).limit(limit).offset(offset)
-
-    for (const condition of conditions) {
-      query = query.where(condition) as any
-    }
+    const query = this.db
+      .select()
+      .from(this.table)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .limit(limit)
+      .offset(offset)
 
     return query as unknown as TEntity[]
   }
@@ -38,12 +39,11 @@ export abstract class CRUDRepository<TEntity> {
       conditions.push(isNull((this.table as any).deleted_at))
     }
 
-    let query = this.db.select().from(this.table).limit(1)
-    for (const condition of conditions) {
-      query = query.where(condition) as any
-    }
-
-    const result = await query
+    const result = await this.db
+      .select()
+      .from(this.table)
+      .where(and(...conditions))
+      .limit(1)
     return (result[0] as TEntity) || null
   }
 
@@ -91,12 +91,10 @@ export abstract class CRUDRepository<TEntity> {
       conditions.push(isNull((this.table as any).deleted_at))
     }
 
-    let query = this.db.select({ count: sql<number>`count(*)::int` }).from(this.table)
-    for (const condition of conditions) {
-      query = query.where(condition) as any
-    }
-
-    const result = await query
+    const result = await this.db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(this.table)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
     return Number(result[0].count)
   }
 
