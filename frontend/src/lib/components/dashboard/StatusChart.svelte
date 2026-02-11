@@ -22,14 +22,13 @@
 
 	const total = $derived(segments.reduce((s, seg) => s + seg.value, 0) || 1);
 
-	// Calculate bar widths as percentages
 	const bars = $derived(segments.map(s => ({
 		...s,
 		pct: Math.round((s.value / total) * 100)
 	})));
 </script>
 
-<div class="rounded-lg border bg-card p-6">
+<div class="rounded-xl border bg-card p-6">
 	<div class="flex items-center justify-between mb-6">
 		<h3 class="text-sm font-semibold">Propiedades por estado</h3>
 		<span class="text-xs text-muted-foreground">{stats.total} total</span>
@@ -40,25 +39,25 @@
 			No hay datos disponibles
 		</div>
 	{:else}
-		<!-- Stacked bar -->
-		<div class="flex rounded-full h-3 overflow-hidden mb-6">
+		<!-- Stacked horizontal bar -->
+		<div class="flex rounded-full h-3 overflow-hidden mb-6 bg-muted">
 			{#each bars as bar}
 				<div
-					class="transition-all duration-500"
+					class="transition-all duration-500 first:rounded-l-full last:rounded-r-full"
 					style="width: {bar.pct}%; background-color: {bar.color};"
 					title="{bar.label}: {bar.value}"
 				></div>
 			{/each}
 		</div>
 
-		<!-- Legend -->
-		<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+		<!-- Legend grid -->
+		<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
 			{#each bars as bar}
-				<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2.5">
 					<div class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: {bar.color};"></div>
 					<div class="min-w-0">
 						<p class="text-xs text-muted-foreground truncate">{bar.label}</p>
-						<p class="text-sm font-medium">{bar.value} <span class="text-xs text-muted-foreground">({bar.pct}%)</span></p>
+						<p class="text-sm font-semibold">{bar.value} <span class="text-xs font-normal text-muted-foreground">({bar.pct}%)</span></p>
 					</div>
 				</div>
 			{/each}
