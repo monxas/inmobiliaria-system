@@ -189,7 +189,7 @@
 									{#if !image.isPrimary}
 										<button
 											class="rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-medium text-gray-800 hover:bg-white"
-											onclick|stopPropagation={() => setPrimary(image)}
+											onclick={(e) => { e.stopPropagation(); setPrimary(image); }}
 											title="Establecer como principal"
 										>
 											★
@@ -198,7 +198,7 @@
 								</div>
 								<button
 									class="rounded bg-red-500/90 px-1.5 py-0.5 text-[10px] font-medium text-white hover:bg-red-600"
-									onclick|stopPropagation={() => deleteImage(image)}
+									onclick={(e) => { e.stopPropagation(); deleteImage(image); }}
 									disabled={isDeleting === image.id}
 									title="Eliminar"
 								>
