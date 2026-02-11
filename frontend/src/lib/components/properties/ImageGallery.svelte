@@ -89,7 +89,7 @@
 		role="dialog"
 		aria-modal="true"
 	>
-		<button onclick|stopPropagation={prev} class="absolute left-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20">
+		<button onclick={(e) => { e.stopPropagation(); prev(); }} class="absolute left-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20">
 			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
 		</button>
 
@@ -97,10 +97,10 @@
 			src={images[lightboxIndex].url}
 			alt={images[lightboxIndex].caption ?? ''}
 			class="max-h-[90vh] max-w-[90vw] object-contain"
-			onclick|stopPropagation={() => {}}
+			onclick={(e) => e.stopPropagation()}
 		/>
 
-		<button onclick|stopPropagation={next} class="absolute right-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20">
+		<button onclick={(e) => { e.stopPropagation(); next(); }} class="absolute right-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20">
 			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
 		</button>
 

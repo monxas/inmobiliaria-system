@@ -10,7 +10,7 @@
 		loading = true;
 		try {
 			await properties.create(data);
-			goto('/properties');
+			goto('/dashboard/properties');
 		} catch {
 			loading = false;
 		}
@@ -28,6 +28,6 @@
 	</div>
 
 	<Card class="p-6">
-		<PropertyForm {loading} onsubmit={handleSubmit} oncancel={() => goto('/properties')} />
+		<PropertyForm {loading} onsubmit={handleSubmit} oncancel={() => goto('/dashboard/properties')} />
 	</Card>
 </div>

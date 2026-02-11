@@ -22,9 +22,9 @@
 	let minBedrooms = $state(filters.minBedrooms?.toString() ?? '');
 	let expanded = $state(false);
 
-	const debouncedSearch = debounce((value: string) => {
+	const debouncedSearch = debounce((() => {
 		applyFilters();
-	}, 300);
+	}) as (...args: unknown[]) => unknown, 300);
 
 	function applyFilters() {
 		const f: Filters = {};

@@ -20,7 +20,7 @@
 		loading = true;
 		try {
 			await properties.update(id, data);
-			goto(`/properties/${id}`);
+			goto(`/dashboard/properties/${id}`);
 		} catch {
 			loading = false;
 		}
@@ -33,7 +33,7 @@
 
 <div class="mx-auto max-w-3xl space-y-6">
 	<div class="flex items-center gap-2">
-		<Button variant="ghost" size="sm" onclick={() => goto(`/properties/${id}`)}>
+		<Button variant="ghost" size="sm" onclick={() => goto(`/dashboard/properties/${id}`)}>
 			<svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
 			Volver
 		</Button>
@@ -50,12 +50,12 @@
 		</div>
 	{:else if property}
 		<Card class="p-6">
-			<PropertyForm {property} {loading} onsubmit={handleSubmit} oncancel={() => goto(`/properties/${id}`)} />
+			<PropertyForm {property} {loading} onsubmit={handleSubmit} oncancel={() => goto(`/dashboard/properties/${id}`)} />
 		</Card>
 	{:else}
 		<div class="text-center">
 			<p>Propiedad no encontrada</p>
-			<Button class="mt-4" onclick={() => goto('/properties')}>Volver</Button>
+			<Button class="mt-4" onclick={() => goto('/dashboard/properties')}>Volver</Button>
 		</div>
 	{/if}
 </div>

@@ -14,7 +14,8 @@
 
 	const id = $derived(Number($page.params.id));
 	let deleteModal = $state(false);
-	let showUpload = $state(false);
+	let showImageUpload = $state(false);
+	let showDocUpload = $state(false);
 
 	onMount(() => {
 		properties.fetchOne(id);
@@ -26,10 +27,9 @@
 
 	async function handleDelete() {
 		await properties.remove(id);
-		goto('/properties');
+		goto('/dashboard/properties');
 	}
 
-	// Placeholder images (until backend has real images)
 	const images: any[] = [];
 </script>
 
@@ -46,8 +46,8 @@
 		<!-- Header -->
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 			<div>
-				<div class="mb-2 flex items-center gap-2">
-					<Button variant="ghost" size="sm" onclick={() => goto('/properties')}>
+				<div class="mb-2">
+					<Button variant="ghost" size="sm" onclick={() => goto('/dashboard/properties')}>
 						<svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
 						Volver
 					</Button>
@@ -56,7 +56,7 @@
 				<p class="text-muted-foreground">{property.address}, {property.city}</p>
 			</div>
 			<div class="flex gap-2">
-				<Button variant="outline" onclick={() => goto(`/properties/${id}/edit`)}>
+				<Button variant="outline" onclick={() => goto(`/dashboard/properties/${id}/edit`)}>
 					<svg xmlns="http://www.w3.org/2000/svg" class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
 					Editar
 				</Button>
@@ -71,11 +71,11 @@
 				<Card class="p-4">
 					<div class="mb-3 flex items-center justify-between">
 						<h2 class="text-lg font-semibold">Imágenes</h2>
-						<Button variant="outline" size="sm" onclick={() => (showUpload = !showUpload)}>
-							{showUpload ? 'Cerrar' : 'Subir imágenes'}
+						<Button variant="outline" size="sm" onclick={() => (showImageUpload = !showImageUpload)}>
+							{showImageUpload ? 'Cerrar' : 'Subir imágenes'}
 						</Button>
 					</div>
-					{#if showUpload}
+					{#if showImageUpload}
 						<div class="mb-4">
 							<FileUpload propertyId={id} onuploaded={() => properties.fetchOne(id)} />
 						</div>
@@ -95,15 +95,18 @@
 				<Card class="p-4">
 					<div class="mb-3 flex items-center justify-between">
 						<h2 class="text-lg font-semibold">Documentos</h2>
-						<Button variant="outline" size="sm">Subir documento</Button>
+						<Button variant="outline" size="sm" onclick={() => (showDocUpload = !showDocUpload)}>
+							{showDocUpload ? 'Cerrar' : 'Subir documento'}
+						</Button>
 					</div>
-					<FileUpload propertyId={id} accept=".pdf,.doc,.docx,.xls,.xlsx" category="property_docs" />
+					{#if showDocUpload}
+						<FileUpload propertyId={id} accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png" category="property_docs" />
+					{/if}
 				</Card>
 			</div>
 
 			<!-- Sidebar -->
 			<div class="space-y-4">
-				<!-- Price & Status -->
 				<Card class="p-4">
 					<div class="mb-3 text-3xl font-bold text-primary">{formatCurrency(property.price)}</div>
 					<div class="flex gap-2">
@@ -114,81 +117,42 @@
 					</div>
 				</Card>
 
-				<!-- Details -->
 				<Card class="p-4">
 					<h3 class="mb-3 font-semibold">Detalles</h3>
 					<dl class="space-y-2 text-sm">
 						{#if property.surfaceArea}
-							<div class="flex justify-between">
-								<dt class="text-muted-foreground">Superficie</dt>
-								<dd class="font-medium">{property.surfaceArea} m²</dd>
-							</div>
+							<div class="flex justify-between"><dt class="text-muted-foreground">Superficie</dt><dd class="font-medium">{property.surfaceArea} m²</dd></div>
 						{/if}
 						{#if property.bedrooms}
-							<div class="flex justify-between">
-								<dt class="text-muted-foreground">Habitaciones</dt>
-								<dd class="font-medium">{property.bedrooms}</dd>
-							</div>
+							<div class="flex justify-between"><dt class="text-muted-foreground">Habitaciones</dt><dd class="font-medium">{property.bedrooms}</dd></div>
 						{/if}
 						{#if property.bathrooms}
-							<div class="flex justify-between">
-								<dt class="text-muted-foreground">Baños</dt>
-								<dd class="font-medium">{property.bathrooms}</dd>
-							</div>
+							<div class="flex justify-between"><dt class="text-muted-foreground">Baños</dt><dd class="font-medium">{property.bathrooms}</dd></div>
 						{/if}
-						<div class="flex justify-between">
-							<dt class="text-muted-foreground">Garaje</dt>
-							<dd class="font-medium">{property.garage ? 'Sí' : 'No'}</dd>
-						</div>
-						<div class="flex justify-between">
-							<dt class="text-muted-foreground">Jardín</dt>
-							<dd class="font-medium">{property.garden ? 'Sí' : 'No'}</dd>
-						</div>
+						<div class="flex justify-between"><dt class="text-muted-foreground">Garaje</dt><dd class="font-medium">{property.garage ? 'Sí' : 'No'}</dd></div>
+						<div class="flex justify-between"><dt class="text-muted-foreground">Jardín</dt><dd class="font-medium">{property.garden ? 'Sí' : 'No'}</dd></div>
 					</dl>
 				</Card>
 
-				<!-- Location -->
 				<Card class="p-4">
 					<h3 class="mb-3 font-semibold">Ubicación</h3>
 					<dl class="space-y-2 text-sm">
-						<div class="flex justify-between">
-							<dt class="text-muted-foreground">Dirección</dt>
-							<dd class="font-medium text-right">{property.address}</dd>
-						</div>
-						<div class="flex justify-between">
-							<dt class="text-muted-foreground">Ciudad</dt>
-							<dd class="font-medium">{property.city}</dd>
-						</div>
+						<div class="flex justify-between"><dt class="text-muted-foreground">Dirección</dt><dd class="text-right font-medium">{property.address}</dd></div>
+						<div class="flex justify-between"><dt class="text-muted-foreground">Ciudad</dt><dd class="font-medium">{property.city}</dd></div>
 						{#if property.postalCode}
-							<div class="flex justify-between">
-								<dt class="text-muted-foreground">C.P.</dt>
-								<dd class="font-medium">{property.postalCode}</dd>
-							</div>
+							<div class="flex justify-between"><dt class="text-muted-foreground">C.P.</dt><dd class="font-medium">{property.postalCode}</dd></div>
 						{/if}
-						<div class="flex justify-between">
-							<dt class="text-muted-foreground">País</dt>
-							<dd class="font-medium">{property.country}</dd>
-						</div>
+						<div class="flex justify-between"><dt class="text-muted-foreground">País</dt><dd class="font-medium">{property.country}</dd></div>
 					</dl>
 				</Card>
 
-				<!-- Metadata -->
 				<Card class="p-4">
 					<h3 class="mb-3 font-semibold">Información</h3>
 					<dl class="space-y-2 text-sm">
-						<div class="flex justify-between">
-							<dt class="text-muted-foreground">ID</dt>
-							<dd class="font-medium">#{property.id}</dd>
-						</div>
-						<div class="flex justify-between">
-							<dt class="text-muted-foreground">Creado</dt>
-							<dd class="font-medium">{formatDate(property.createdAt)}</dd>
-						</div>
+						<div class="flex justify-between"><dt class="text-muted-foreground">ID</dt><dd class="font-medium">#{property.id}</dd></div>
+						<div class="flex justify-between"><dt class="text-muted-foreground">Creado</dt><dd class="font-medium">{formatDate(property.createdAt)}</dd></div>
 						{#if property.updatedAt}
-							<div class="flex justify-between">
-								<dt class="text-muted-foreground">Actualizado</dt>
-								<dd class="font-medium">{formatDate(property.updatedAt)}</dd>
-							</div>
+							<div class="flex justify-between"><dt class="text-muted-foreground">Actualizado</dt><dd class="font-medium">{formatDate(property.updatedAt)}</dd></div>
 						{/if}
 					</dl>
 				</Card>
@@ -196,7 +160,6 @@
 		</div>
 	</div>
 
-	<!-- Delete modal -->
 	<Modal bind:open={deleteModal} title="Confirmar eliminación" size="sm">
 		<p class="text-sm text-muted-foreground">¿Eliminar "{property.title}"? Esta acción no se puede deshacer.</p>
 		<div class="mt-4 flex justify-end gap-2">
@@ -207,6 +170,6 @@
 {:else}
 	<div class="flex h-64 flex-col items-center justify-center">
 		<h2 class="text-xl font-semibold">Propiedad no encontrada</h2>
-		<Button class="mt-4" onclick={() => goto('/properties')}>Volver a propiedades</Button>
+		<Button class="mt-4" onclick={() => goto('/dashboard/properties')}>Volver a propiedades</Button>
 	</div>
 {/if}

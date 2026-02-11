@@ -124,7 +124,7 @@
 		class="relative flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors {dragOver
 			? 'border-primary bg-primary/5'
 			: 'border-muted-foreground/25 hover:border-primary/50'}"
-		ondragover|preventDefault={() => (dragOver = true)}
+		ondragover={(e) => { e.preventDefault(); dragOver = true; }}
 		ondragleave={() => (dragOver = false)}
 		ondrop={handleDrop}
 		onclick={() => inputRef.click()}
