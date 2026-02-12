@@ -216,6 +216,9 @@ services:
     read_only: false
     security_opt:
       - no-new-privileges:true
+    
+    labels:
+      - tunnel.hostname=inmobiliaria-api.monxas.casa
 
   # ---------------------------------------------------------------------------
   # Frontend - SvelteKit Node.js Server (DEV)
@@ -255,6 +258,9 @@ services:
     
     networks:
       - frontend
+    
+    labels:
+      - tunnel.hostname=inmobiliaria.monxas.casa
     
     deploy:
       resources:
