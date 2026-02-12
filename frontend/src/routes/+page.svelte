@@ -6,13 +6,17 @@
 	onMount(() => {
 		const unsub = isLoading.subscribe(loading => {
 			if (!loading) {
-				const authUnsub = isAuthenticated.subscribe(auth => {
+				let authUnsub: (() => void) | null = null;
+				authUnsub = isAuthenticated.subscribe(auth => {
 					if (auth) {
 						goto('/dashboard');
 					} else {
 						goto('/auth/login');
 					}
-					authUnsub();
+					// Cleanup subscription after first check
+					if (authUnsub) {
+						authUnsub();
+					}
 				});
 				unsub();
 			}
