@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Test</title>
+</head>
+<body>
+  <h1>Static HTML Test</h1>
+  <p id="status">JavaScript not loaded</p>
+  <button onclick="testClick()">Click me</button>
+  
+  <script>
+    console.log('Static script executing...');
+    document.getElementById('status').textContent = 'JavaScript working!';
+    
+    function testClick() {
+      alert('Button works!');
+      console.log('Button clicked');
+    }
+    
+    // Test API
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(d => console.log('API test:', d))
+      .catch(e => console.error('API error:', e));
+  </script>
+</body>
+</html>

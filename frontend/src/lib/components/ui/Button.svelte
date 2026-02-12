@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 		size?: 'default' | 'sm' | 'lg' | 'icon';
@@ -9,6 +11,7 @@
 		type?: 'button' | 'submit' | 'reset';
 		loading?: boolean;
 		onclick?: (e: MouseEvent) => void;
+		children?: Snippet;
 	}
 
 	let {
@@ -19,6 +22,7 @@
 		type = 'button',
 		loading = false,
 		onclick,
+		children,
 		...restProps
 	}: Props & Record<string, unknown> = $props();
 
@@ -67,5 +71,5 @@
 			></path>
 		</svg>
 	{/if}
-	<slot />
+	{@render children?.()}
 </button>

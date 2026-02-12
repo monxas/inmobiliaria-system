@@ -2,8 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { auth, user, isAuthenticated, isLoading, isAdmin } from '$stores/auth';
+	import { auth, user, isAuthenticated, isLoading, isAdmin } from '$stores/auth-simple';
 	import { toast } from '$stores/toast';
+	
+	// Lucide icons
+	import { Home, Building, Users, File, Shield, Menu, ChevronDown, User, Settings, LogOut } from 'lucide-svelte';
 
 	let { children } = $props();
 	let sidebarOpen = $state(true);
@@ -49,12 +52,17 @@
 	</div>
 {:else if $isAuthenticated}
 	<div class="flex h-screen overflow-hidden">
+		<!-- Mobile overlay -->
+		{#if sidebarOpen}
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div class="fixed inset-0 z-40 bg-black/50 md:hidden" onclick={() => sidebarOpen = false}></div>
+		{/if}
+
 		<!-- Sidebar -->
 		<aside
-			class="flex w-64 flex-col border-r bg-card transition-all duration-200"
-			class:w-64={sidebarOpen}
-			class:-ml-64={!sidebarOpen}
-			class:md:ml-0={true}
+			class="fixed left-0 top-0 z-50 flex h-full w-64 flex-col border-r bg-card transition-transform duration-200 md:static md:z-0 md:translate-x-0"
+			class:translate-x-0={sidebarOpen}
+			class:-translate-x-full={!sidebarOpen}
 		>
 			<!-- Logo -->
 			<div class="flex h-16 items-center gap-3 border-b px-4">
@@ -72,13 +80,13 @@
 						class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors {isActive(item.href) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
 					>
 						{#if item.icon === 'home'}
-							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+							<Home class="h-4 w-4" />
 						{:else if item.icon === 'building'}
-							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+							<Building class="h-4 w-4" />
 						{:else if item.icon === 'users'}
-							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+							<Users class="h-4 w-4" />
 						{:else if item.icon === 'file'}
-							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+							<File class="h-4 w-4" />
 						{/if}
 						{item.label}
 					</a>
@@ -92,7 +100,7 @@
 							href={item.href}
 							class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors {isActive(item.href) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
 						>
-							<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+							<Shield class="h-4 w-4" />
 							{item.label}
 						</a>
 					{/each}
@@ -114,14 +122,14 @@
 		</aside>
 
 		<!-- Main content -->
-		<div class="flex flex-1 flex-col overflow-hidden">
+		<div class="flex flex-1 flex-col overflow-hidden md:ml-0">
 			<!-- Header -->
 			<header class="flex h-16 items-center justify-between border-b bg-card px-4 lg:px-6">
 				<button
 					onclick={() => sidebarOpen = !sidebarOpen}
-					class="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden"
+					class="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
 				>
-					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+					<Menu class="h-5 w-5" />
 				</button>
 
 				<div class="flex-1"></div>
@@ -136,7 +144,7 @@
 							{$user?.fullName?.charAt(0) ?? '?'}
 						</div>
 						<span class="hidden sm:inline">{$user?.fullName ?? 'Usuario'}</span>
-						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+						<ChevronDown class="h-4 w-4" />
 					</button>
 
 					{#if userMenuOpen}
@@ -148,11 +156,11 @@
 								<p class="text-xs text-muted-foreground">{$user?.email}</p>
 							</div>
 							<a href="/dashboard/profile" class="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground" onclick={() => userMenuOpen = false}>
-								<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+								<User class="h-4 w-4" />
 								Perfil
 							</a>
 							<a href="/dashboard/settings" class="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground" onclick={() => userMenuOpen = false}>
-								<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+								<Settings class="h-4 w-4" />
 								Configuración
 							</a>
 							<div class="border-t">
@@ -160,7 +168,7 @@
 									onclick={handleLogout}
 									class="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10"
 								>
-									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+									<LogOut class="h-4 w-4" />
 									Cerrar Sesión
 								</button>
 							</div>

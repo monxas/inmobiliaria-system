@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { user } from '$stores/auth';
+	import { user } from '$stores/auth-simple';
 	import { toast } from '$stores/toast';
 	import { authApi } from '$api/client';
 	import Button from '$ui/Button.svelte';

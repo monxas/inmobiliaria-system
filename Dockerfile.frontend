@@ -1,0 +1,62 @@
+# =============================================================================
+# Frontend SvelteKit - Multi-stage build for production
+# Target: <50MB final image with nginx
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Dependencies - Install deps
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+COPY frontend/bun.lock* ./
+
+# Install dependencies
+RUN npm ci --only=production --legacy-peer-deps
+
+# -----------------------------------------------------------------------------
+# Stage 2: Build - Compile SvelteKit app
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Copy package files and install all deps (including dev)
+COPY frontend/package*.json ./
+COPY frontend/bun.lock* ./
+RUN npm ci --legacy-peer-deps
+
+# Copy source files
+COPY frontend/ ./
+
+# Build for production
+RUN npm run build
+
+# -----------------------------------------------------------------------------
+# Stage 3: Production - Nginx serving static files
+# -----------------------------------------------------------------------------
+FROM nginx:alpine AS production
+
+# Install envsubst for environment variable substitution
+RUN apk add --no-cache gettext
+
+# Copy built static files
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Copy nginx configuration template
+COPY docker/nginx.conf.template /etc/nginx/templates/default.conf.template
+
+# Health check
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost || exit 1
+
+EXPOSE 80
+
+# Environment defaults
+ENV API_URL=http://backend:3000
+
+# Start nginx with environment variable substitution
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
-	import { isAuthenticated, isLoading } from '$stores/auth';
+	import { isAuthenticated, isLoading } from '$stores/auth-simple';
 
 	let { children } = $props();
 

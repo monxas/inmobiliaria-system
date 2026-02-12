@@ -117,7 +117,7 @@ export const uploadProgress = derived(uploadQueue, $q => {
 // Upload Functions
 // ============================================
 
-const API_BASE = '/api';
+import { API_BASE } from '$lib/config';
 
 /**
  * Upload a single file with progress tracking via XMLHttpRequest.

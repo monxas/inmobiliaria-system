@@ -35,16 +35,19 @@ function createPropertiesStore() {
 	const { subscribe, set, update } = writable<PropertiesState>(initial);
 
 	async function fetchAll() {
+		console.log('[properties] fetchAll called');
 		update((s) => ({ ...s, loading: true, error: null }));
 		try {
 			let state: PropertiesState = initial;
 			subscribe((s) => (state = s))();
+			console.log('[properties] calling API with page:', state.page, 'limit:', state.limit);
 
 			const res: PaginatedResponse<Property> = await propertiesApi.list(
 				state.page,
 				state.limit,
 				state.filters
 			);
+			console.log('[properties] got response, items:', res.data?.length, 'total:', res.pagination?.total);
 			update((s) => ({
 				...s,
 				items: res.data,
@@ -54,6 +57,7 @@ function createPropertiesStore() {
 				loading: false
 			}));
 		} catch (e) {
+			console.error('[properties] fetchAll error:', e);
 			const msg = e instanceof Error ? e.message : 'Error loading properties';
 			update((s) => ({ ...s, loading: false, error: msg }));
 			toast.error(msg);

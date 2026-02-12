@@ -1,18 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { isAuthenticated, isLoading } from '$lib/stores/auth';
+	import { isAuthenticated, isLoading } from '$lib/stores/auth-simple';
 
 	onMount(() => {
 		const unsub = isLoading.subscribe(loading => {
 			if (!loading) {
-				isAuthenticated.subscribe(auth => {
+				const authUnsub = isAuthenticated.subscribe(auth => {
 					if (auth) {
 						goto('/dashboard');
 					} else {
 						goto('/auth/login');
 					}
-				})();
+					authUnsub();
+				});
 				unsub();
 			}
 		});

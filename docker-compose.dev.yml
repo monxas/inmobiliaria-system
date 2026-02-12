@@ -130,8 +130,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: inmobiliaria-api
+    container_name: inmobiliaria-api-dev
     restart: unless-stopped
+    
+    # DEV: Expose port for external access
+    ports:
+      - "8081:3000"
     
     environment:
       # Database
@@ -142,7 +146,7 @@ services:
       
       # App
       PORT: 3000
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: development
       
       # Security (required)
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
@@ -168,6 +172,13 @@ services:
     
     volumes:
       - uploads:/app/uploads:rw
+      # DEV: Bind mounts for hot reload
+      - ./backend:/app/backend:ro
+      - ./package.json:/app/package.json:ro
+      - ./bun.lock:/app/bun.lock:ro
+    
+    # DEV: Hot reload command
+    command: ["bun", "run", "--watch", "backend/src/index.ts"]
     
     depends_on:
       database:
@@ -200,29 +211,36 @@ services:
       - no-new-privileges:true
 
   # ---------------------------------------------------------------------------
-  # Frontend - SvelteKit Node.js Server
+  # Frontend - SvelteKit Node.js Server (DEV)
   # ---------------------------------------------------------------------------
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend-node
-    container_name: inmobiliaria-frontend
+    image: node:20-alpine
+    container_name: inmobiliaria-frontend-dev
     restart: unless-stopped
     
+    working_dir: /app
+    
     ports:
-      - "${FRONTEND_PORT:-3001}:3000"
+      - "5173:5173"
     
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      API_BASE_URL: http://backend:3000
+      NODE_ENV: development
+      PORT: 5173
+      API_BASE_URL: http://inmobiliaria-api-dev:3000
+    
+    # DEV: Bind mounts for hot reload
+    volumes:
+      - ./frontend:/app:rw
+    
+    # DEV: Install deps and run development server
+    command: ["sh", "-c", "npm install --legacy-peer-deps && npm run dev -- --host 0.0.0.0 --port 5173"]
     
     depends_on:
       backend:
         condition: service_healthy
     
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:5173/', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 15s
       timeout: 5s
       retries: 3

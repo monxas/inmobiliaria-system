@@ -351,10 +351,10 @@
 
 		<!-- Notes Tab -->
 		{#if activeTab === 'notes'}
+			{@const notesData = parseNotesData(client.notes)}
 			<Card>
 				<div class="p-6">
 					<h3 class="mb-3 font-semibold">Notas</h3>
-					{@const notesData = parseNotesData(client.notes)}
 					<p class="whitespace-pre-wrap text-sm text-muted-foreground">
 						{notesData.text || 'Sin notas'}
 					</p>

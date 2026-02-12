@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isAdmin } from '$stores/auth';
+	import { isAdmin } from '$stores/auth-simple';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 

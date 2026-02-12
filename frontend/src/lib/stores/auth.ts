@@ -27,8 +27,13 @@ function createAuthStore() {
 			return;
 		}
 
+		// Safety timeout: if auth check hangs, force-resolve after 5 seconds
+		const timeout = new Promise<never>((_, reject) =>
+			setTimeout(() => reject(new Error('Auth initialization timeout')), 5000)
+		);
+
 		try {
-			const response = await authApi.me();
+			const response = await Promise.race([authApi.me(), timeout]);
 			if (response.success && response.data) {
 				set({
 					user: response.data,

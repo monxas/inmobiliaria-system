@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { auth, isAdmin } from '$stores/auth';
+	import { auth, isAdmin } from '$stores/auth-simple';
 	import { toast } from '$stores/toast';
 	import Button from '$ui/Button.svelte';
 	import Input from '$ui/Input.svelte';

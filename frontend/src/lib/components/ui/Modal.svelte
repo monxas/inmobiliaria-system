@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import Button from './Button.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		open?: boolean;
@@ -8,6 +9,7 @@
 		size?: 'sm' | 'md' | 'lg' | 'xl';
 		class?: string;
 		onclose?: () => void;
+		children?: Snippet;
 	}
 
 	let {
@@ -15,7 +17,8 @@
 		title = '',
 		size = 'md',
 		class: className = '',
-		onclose
+		onclose,
+		children
 	}: Props = $props();
 
 	const sizes = {
@@ -75,7 +78,7 @@
 					</Button>
 				</div>
 			{/if}
-			<slot />
+			{@render children?.()}
 		</div>
 	</div>
 {/if}
