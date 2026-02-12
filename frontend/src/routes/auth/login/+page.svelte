@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/stores/auth-simple';
+	import { API_BASE } from '$lib/config';
 
 	let email = $state('admin@test.com');
 	let password = $state('test');
@@ -92,7 +93,7 @@
 
 			<!-- Google Login Button -->
 			<a
-				href="/api/auth/google"
+				href="{API_BASE}/auth/google"
 				class="w-full flex items-center justify-center gap-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
 			>
 				<svg class="w-5 h-5" viewBox="0 0 24 24">
