@@ -2,6 +2,7 @@
 	import { user, isAuthenticated } from '$stores/auth-simple';
 	import { FolderOpen, Users, FileText, BarChart3, TrendingUp, TrendingDown } from 'lucide-svelte';
 	import { onMount } from 'svelte';
+	import CalendarWidget from '$lib/components/calendar/CalendarWidget.svelte';
 
 	// Dynamic stats - will be loaded from API later
 	let stats = $state({
@@ -130,6 +131,9 @@
 			</div>
 		</a>
 	</div>
+
+	<!-- Calendar Widget -->
+	<CalendarWidget />
 
 	<!-- Recent Activity -->
 	<div class="rounded-lg border bg-card p-6 shadow-sm">

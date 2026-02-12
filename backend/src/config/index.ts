@@ -44,6 +44,12 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).default('info'),
   LOG_FORMAT: z.enum(['json', 'pretty']).default('json'),
   
+  // Google Calendar OAuth2 (optional - feature disabled if not set)
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().url().optional(),
+  FRONTEND_URL: z.string().url().optional().default('http://localhost:5173'),
+
   // App Info
   APP_VERSION: z.string().default('1.0.0'),
   

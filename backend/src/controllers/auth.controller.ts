@@ -85,6 +85,58 @@ export class AuthController {
   }
 
   /**
+   * GET /auth/google
+   * Redirect to Google OAuth2 consent screen
+   */
+  async googleRedirect(c: Context) {
+    try {
+      const url = authService.getGoogleAuthUrl()
+      return c.redirect(url)
+    } catch (error) {
+      log.error('Google auth redirect error', { error: String(error) })
+      return c.json(apiError('Google OAuth not configured', 500), 500)
+    }
+  }
+
+  /**
+   * GET /auth/google/callback
+   * Handle Google OAuth2 callback
+   */
+  async googleCallback(c: Context) {
+    const code = c.req.query('code')
+    const error = c.req.query('error')
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
+
+    if (error) {
+      return c.redirect(`${frontendUrl}/login?error=google_${error}`)
+    }
+
+    if (!code) {
+      return c.redirect(`${frontendUrl}/login?error=missing_code`)
+    }
+
+    try {
+      const ipAddress = getClientIP(c)
+      const userAgent = c.req.header('user-agent') || undefined
+
+      const authResult = await authService.googleCallback(code, ipAddress, userAgent)
+
+      // Redirect to frontend with token in URL fragment (more secure than query params)
+      // Frontend will extract it and store in memory/localStorage
+      const params = new URLSearchParams({
+        token: authResult.tokens.accessToken,
+        refreshToken: authResult.tokens.refreshToken,
+        expiresIn: String(authResult.tokens.expiresIn),
+      })
+
+      return c.redirect(`${frontendUrl}/auth/callback?${params.toString()}`)
+    } catch (error) {
+      log.error('Google callback error', { error: String(error) })
+      return c.redirect(`${frontendUrl}/login?error=google_auth_failed`)
+    }
+  }
+
+  /**
    * POST /auth/register
    * Create new user account (role forced to 'client')
    */

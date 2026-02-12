@@ -92,6 +92,45 @@ export class UsersRepository extends CRUDRepository<User, UserFilters> {
   }
 
   /**
+   * Find a user by Google ID.
+   */
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    const results = await this.db
+      .select()
+      .from(this.table)
+      .where(and(
+        eq(users.googleId, googleId),
+        isNull(users.deletedAt)
+      ))
+      .limit(1)
+    
+    return results[0] ?? null
+  }
+
+  /**
+   * Update Google OAuth tokens for a user.
+   */
+  async updateGoogleTokens(id: number, data: {
+    googleAccessToken: string
+    googleRefreshToken?: string
+    googleTokenExpiry: number
+    googleScopes?: string
+  }): Promise<void> {
+    const updateData: Record<string, unknown> = {
+      googleAccessToken: data.googleAccessToken,
+      googleTokenExpiry: data.googleTokenExpiry,
+      updatedAt: new Date(),
+    }
+    if (data.googleRefreshToken) updateData.googleRefreshToken = data.googleRefreshToken
+    if (data.googleScopes) updateData.googleScopes = data.googleScopes
+
+    await this.db
+      .update(this.table)
+      .set(updateData)
+      .where(eq(users.id, id))
+  }
+
+  /**
    * Update user password.
    */
   async updatePassword(id: number, passwordHash: string): Promise<void> {

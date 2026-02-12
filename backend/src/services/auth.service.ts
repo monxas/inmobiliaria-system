@@ -5,6 +5,7 @@ import type { User } from '../database/schema'
 import { comparePassword, signJWT } from '../utils/crypto'
 import { UnauthorizedError, ValidationError, ForbiddenError } from '../types/errors'
 import { logger } from '../lib/logger'
+import * as calendarService from './google-calendar.service'
 
 // User without password hash for API responses
 export type SafeUser = Omit<User, 'passwordHash'>
@@ -90,6 +91,11 @@ export class AuthService {
     if (!user) {
       this.log.warn('Login failed: user not found', { email })
       throw new UnauthorizedError('Invalid email or password')
+    }
+
+    if (!user.passwordHash) {
+      this.log.warn('Login failed: Google-only user attempted password login', { email })
+      throw new UnauthorizedError('This account uses Google login. Please use "Login with Google".')
     }
 
     const valid = await comparePassword(password, user.passwordHash)
@@ -221,6 +227,176 @@ export class AuthService {
 
     await refreshTokensRepository.revoke(sessionId)
     this.log.info('Session revoked', { userId, sessionId })
+  }
+
+  // ==========================================================================
+  // Google OAuth2 Authentication
+  // ==========================================================================
+
+  /**
+   * Get Google OAuth2 consent URL for login/signup
+   */
+  getGoogleAuthUrl(): string {
+    const clientId = process.env.GOOGLE_CLIENT_ID
+    const redirectUri = process.env.GOOGLE_AUTH_REDIRECT_URI || process.env.GOOGLE_REDIRECT_URI
+    if (!clientId || !redirectUri) {
+      throw new Error('Google OAuth not configured: missing GOOGLE_CLIENT_ID or GOOGLE_AUTH_REDIRECT_URI')
+    }
+
+    const scopes = [
+      'openid',
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/calendar.events',
+    ]
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: scopes.join(' '),
+      access_type: 'offline',
+      prompt: 'consent',
+      state: 'google_login', // distinguish from calendar-only OAuth
+    })
+
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+  }
+
+  /**
+   * Handle Google OAuth2 callback: exchange code, create/find user, return JWT
+   */
+  async googleCallback(
+    code: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<AuthResult> {
+    const clientId = process.env.GOOGLE_CLIENT_ID
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET
+    const redirectUri = process.env.GOOGLE_AUTH_REDIRECT_URI || process.env.GOOGLE_REDIRECT_URI
+
+    if (!clientId || !clientSecret || !redirectUri) {
+      throw new Error('Google OAuth not configured')
+    }
+
+    // 1. Exchange code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }),
+    })
+
+    if (!tokenResponse.ok) {
+      const err = await tokenResponse.text()
+      this.log.error('Google token exchange failed', { error: err })
+      throw new UnauthorizedError('Google authentication failed')
+    }
+
+    const tokenData = await tokenResponse.json() as {
+      access_token: string
+      refresh_token?: string
+      id_token?: string
+      expires_in: number
+      scope: string
+      token_type: string
+    }
+
+    // 2. Get user info from Google
+    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    })
+
+    if (!userInfoResponse.ok) {
+      throw new UnauthorizedError('Failed to get Google user info')
+    }
+
+    const googleUser = await userInfoResponse.json() as {
+      id: string
+      email: string
+      name: string
+      picture?: string
+      verified_email?: boolean
+    }
+
+    // 3. Find or create user
+    let user = await usersRepository.findByGoogleId(googleUser.id)
+
+    if (!user) {
+      // Check if user exists with same email (link accounts)
+      user = await usersRepository.findByEmail(googleUser.email)
+
+      if (user) {
+        // Link existing user to Google account
+        await usersRepository.update(user.id, {
+          googleId: googleUser.id,
+          googleEmail: googleUser.email,
+          googleAccessToken: tokenData.access_token,
+          googleRefreshToken: tokenData.refresh_token || undefined,
+          googleTokenExpiry: Date.now() + (tokenData.expires_in * 1000),
+          googleScopes: tokenData.scope,
+          avatarUrl: user.avatarUrl || googleUser.picture || undefined,
+        } as any)
+        // Re-fetch with updated fields
+        user = await usersRepository.findById(user.id)
+      } else {
+        // Create new user from Google profile
+        user = await usersRepository.createWithPassword({
+          email: googleUser.email,
+          passwordHash: null as any, // Google-only user, no password
+          fullName: googleUser.name,
+          role: 'agent', // Default role for Google signups
+          avatarUrl: googleUser.picture || undefined,
+          googleId: googleUser.id,
+          googleEmail: googleUser.email,
+          googleAccessToken: tokenData.access_token,
+          googleRefreshToken: tokenData.refresh_token || undefined,
+          googleTokenExpiry: Date.now() + (tokenData.expires_in * 1000),
+          googleScopes: tokenData.scope,
+        } as any)
+      }
+    } else {
+      // Update tokens for existing Google user
+      await usersRepository.updateGoogleTokens(user.id, {
+        googleAccessToken: tokenData.access_token,
+        googleRefreshToken: tokenData.refresh_token,
+        googleTokenExpiry: Date.now() + (tokenData.expires_in * 1000),
+        googleScopes: tokenData.scope,
+      })
+    }
+
+    if (!user) {
+      throw new Error('Failed to create or find user')
+    }
+
+    // 4. Also save tokens to google_calendar_tokens table for Calendar API
+    try {
+      await calendarService.saveTokens(user.id, {
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token || '',
+        token_type: tokenData.token_type,
+        scope: tokenData.scope,
+        expiry_date: Date.now() + (tokenData.expires_in * 1000),
+      })
+    } catch (err) {
+      this.log.warn('Failed to save calendar tokens (table may not exist yet)', { error: String(err) })
+    }
+
+    // 5. Generate app JWT tokens
+    const tokens = await this.generateTokenPair(user, ipAddress, userAgent)
+
+    this.log.info('User logged in via Google', { userId: user.id, email: user.email, googleId: googleUser.id })
+
+    return {
+      user: omitPassword(user),
+      tokens,
+    }
   }
 
   /**

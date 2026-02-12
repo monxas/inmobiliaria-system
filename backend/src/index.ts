@@ -10,7 +10,7 @@ import { securityHeaders } from './middleware/security-headers'
 import { rateLimiter, authRateLimiter } from './middleware/rate-limiter'
 import { requestLogger } from './middleware/logger'
 import { errorHandler } from './middleware/errors'
-import { health, properties, clients, users, documents, auth } from './routes'
+import { health, properties, clients, users, documents, auth, calendar } from './routes'
 import { logger } from './lib/logger'
 import { container } from './lib/container'
 import { loadConfig } from './config'
@@ -70,6 +70,7 @@ app.route('/api/properties', properties)
 app.route('/api/clients', clients)
 app.route('/api/users', users)
 app.route('/api/documents', documents)
+app.route('/api/calendar', calendar)
 
 // --- Root endpoint ---
 app.get('/', (c) => {
@@ -84,6 +85,7 @@ app.get('/', (c) => {
       clients: '/api/clients',
       users: '/api/users',
       documents: '/api/documents',
+      calendar: '/api/calendar',
     }
   })
 })
