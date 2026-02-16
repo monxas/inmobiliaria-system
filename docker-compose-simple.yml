@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-inmobiliaria_dev}
+      POSTGRES_USER: ${DB_USER:-app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev12345}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d ${DB_NAME:-inmobiliaria_dev}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  cache:
+    image: eqalpha/keydb:alpine
+    command: keydb-server /etc/keydb/keydb.conf --protected-mode no
+    healthcheck:
+      test: ["CMD", "keydb-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  backend:
+    build: .
+    ports:
+      - "3010:3000"
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-app}:${DB_PASSWORD:-dev12345}@database:5432/${DB_NAME:-inmobiliaria_dev}
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key}
+      - NODE_ENV=production
+      - PORT=3000
+      - CORS_ORIGIN=http://192.168.0.208:9000
+    depends_on:
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  db_data:
