@@ -534,10 +534,10 @@
 									['Empresa', client.company],
 									['Idioma', client.language?.toUpperCase()],
 									['Zona horaria', client.timezone],
-								] as [string, string | null | undefined]}
+								] as item}
 									<div class="flex justify-between border-b border-dashed pb-2 last:border-0">
-										<dt class="text-sm text-muted-foreground">{@html arguments[0]}</dt>
-										<dd class="text-sm font-medium">{arguments[1] || '—'}</dd>
+										<dt class="text-sm text-muted-foreground">{item[0]}</dt>
+										<dd class="text-sm font-medium">{item[1] || '—'}</dd>
 									</div>
 								{/each}
 							</dl>

@@ -136,9 +136,8 @@
               <span class="font-medium text-sm text-gray-900">{log.client_name}</span>
             {/if}
             <span class="text-xs text-gray-400">{log.recipient_phone || log.recipient_email || ''}</span>
-            {@const badge = statusBadge(log.status)}
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-medium {badge.color}">
-              {badge.label}
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-medium {statusBadge(log.status).color}">
+              {statusBadge(log.status).label}
             </span>
           </div>
           <p class="text-sm text-gray-600 mt-1 line-clamp-2">{log.message}</p>

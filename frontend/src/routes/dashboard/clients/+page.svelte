@@ -275,15 +275,12 @@
 										</div>
 									</td>
 									<td class="hidden p-3 text-center md:table-cell">
-										{@const score = client.leadScore || 0}
-										<span class="inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold {score >= 70 ? 'bg-green-100 text-green-700' : score >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
-											{score}
+										<span class="inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold {(client.leadScore || 0) >= 70 ? 'bg-green-100 text-green-700' : (client.leadScore || 0) >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
+											{client.leadScore || 0}
 										</span>
 									</td>
 									<td class="hidden p-3 md:table-cell">
-										{@const st = client.status || 'lead'}
-										{@const stConfig = { lead: '🔵', contacted: '📞', qualified: '✅', negotiating: '🤝', closed: '🎉', lost: '❌' }}
-										<Badge variant="secondary">{stConfig[st] || '🔵'} {st}</Badge>
+										<Badge variant="secondary">{{ lead: '🔵', contacted: '📞', qualified: '✅', negotiating: '🤝', closed: '🎉', lost: '❌' }[client.status || 'lead'] || '🔵'} {client.status || 'lead'}</Badge>
 									</td>
 									<td class="hidden p-3 lg:table-cell">
 										<span class="text-sm text-muted-foreground">{formatDate(client.createdAt)}</span>
