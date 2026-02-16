@@ -225,7 +225,8 @@
 								</th>
 								<th class="p-3 text-left font-medium">Cliente</th>
 								<th class="hidden p-3 text-left font-medium sm:table-cell">Contacto</th>
-								<th class="hidden p-3 text-left font-medium md:table-cell">Agente</th>
+								<th class="hidden p-3 text-center font-medium md:table-cell">Score</th>
+								<th class="hidden p-3 text-left font-medium md:table-cell">Estado</th>
 								<th class="hidden p-3 text-left font-medium lg:table-cell">Creado</th>
 								<th class="p-3 text-right font-medium">Acciones</th>
 							</tr>
@@ -273,12 +274,16 @@
 											{/if}
 										</div>
 									</td>
+									<td class="hidden p-3 text-center md:table-cell">
+										{@const score = client.leadScore || 0}
+										<span class="inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold {score >= 70 ? 'bg-green-100 text-green-700' : score >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
+											{score}
+										</span>
+									</td>
 									<td class="hidden p-3 md:table-cell">
-										{#if client.agentId}
-											<Badge variant="secondary">Agente #{client.agentId}</Badge>
-										{:else}
-											<Badge variant="outline">Sin asignar</Badge>
-										{/if}
+										{@const st = client.status || 'lead'}
+										{@const stConfig = { lead: '🔵', contacted: '📞', qualified: '✅', negotiating: '🤝', closed: '🎉', lost: '❌' }}
+										<Badge variant="secondary">{stConfig[st] || '🔵'} {st}</Badge>
 									</td>
 									<td class="hidden p-3 lg:table-cell">
 										<span class="text-sm text-muted-foreground">{formatDate(client.createdAt)}</span>

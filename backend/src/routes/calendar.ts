@@ -8,6 +8,7 @@ import { requireAuth } from '../middleware/auth'
 import { z } from 'zod'
 import type { AppVariables } from '../types'
 import * as calendarService from '../services/google-calendar.service'
+import * as eventHooks from '../services/event-hooks.service'
 import { logger } from '../lib/logger'
 
 const calendar = new Hono<{ Variables: AppVariables }>()
@@ -163,6 +164,10 @@ calendar.post('/events', async (c) => {
 
   try {
     const event = await calendarService.createEvent(user.id, parsed.data)
+    
+    // Trigger notifications (WhatsApp + Push + schedule reminders) - fire and forget
+    void eventHooks.onEventCreated(user.id, event, parsed.data)
+    
     return c.json({ success: true, data: { event } }, 201)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create event'
@@ -190,6 +195,10 @@ calendar.put('/events/:eventId', async (c) => {
 
   try {
     const event = await calendarService.updateEvent(user.id, eventId, parsed.data)
+    
+    // Reschedule reminders if time changed
+    void eventHooks.onEventUpdated(user.id, eventId, parsed.data as calendarService.CalendarEventInput)
+    
     return c.json({ success: true, data: { event } })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to update event'
@@ -208,6 +217,10 @@ calendar.delete('/events/:eventId', async (c) => {
 
   try {
     await calendarService.deleteEvent(user.id, eventId)
+    
+    // Cancel scheduled reminders
+    void eventHooks.onEventDeleted(user.id, eventId)
+    
     return c.json({ success: true, data: { message: 'Event deleted' } })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to delete event'
