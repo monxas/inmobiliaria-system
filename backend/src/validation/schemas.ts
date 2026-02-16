@@ -134,6 +134,11 @@ export type PropertyFilters = z.infer<typeof PropertyFiltersSchema>
 // Client Schemas
 // ============================================
 
+export const ClientStatusEnum = z.enum(['lead', 'contacted', 'qualified', 'negotiating', 'closed', 'lost'])
+export const ClientSourceEnum = z.enum(['website', 'referral', 'walk_in', 'phone', 'social_media', 'portal', 'advertising', 'other'])
+export const ContactMethodEnum = z.enum(['phone', 'email', 'whatsapp', 'in_person'])
+export const InterestTypeEnum = z.enum(['buy', 'rent', 'both'])
+
 export const CreateClientSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters').max(255),
   email: emailString.optional().nullable(),
@@ -141,6 +146,41 @@ export const CreateClientSchema = z.object({
   address: z.string().max(500).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
   agentId: z.number().int().positive().optional().nullable(),
+  
+  // CRM Pipeline
+  status: ClientStatusEnum.optional().nullable(),
+  source: ClientSourceEnum.optional().nullable(),
+  
+  // Personal Info
+  dni: z.string().max(20).optional().nullable(),
+  dateOfBirth: z.string().optional().nullable(),
+  nationality: z.string().max(100).optional().nullable(),
+  occupation: z.string().max(255).optional().nullable(),
+  company: z.string().max(255).optional().nullable(),
+  
+  // Contact Preferences
+  phoneSecondary: phoneString.optional().nullable(),
+  preferredContact: ContactMethodEnum.optional().nullable(),
+  preferredContactTime: z.string().max(50).optional().nullable(),
+  timezone: z.string().max(50).optional().nullable(),
+  language: z.string().max(10).optional().nullable(),
+  
+  // Property Preferences
+  interestType: InterestTypeEnum.optional().nullable(),
+  budgetMin: z.union([z.string(), z.number()]).transform(val => val ? String(val) : null).optional().nullable(),
+  budgetMax: z.union([z.string(), z.number()]).transform(val => val ? String(val) : null).optional().nullable(),
+  preferredZones: z.string().max(2000).optional().nullable(),
+  preferredPropertyTypes: z.string().max(500).optional().nullable(),
+  minBedrooms: z.number().int().min(0).max(50).optional().nullable(),
+  minBathrooms: z.number().int().min(0).max(20).optional().nullable(),
+  minSurface: z.number().int().positive().optional().nullable(),
+  needsGarage: z.boolean().optional().nullable(),
+  needsGarden: z.boolean().optional().nullable(),
+  additionalRequirements: z.string().max(2000).optional().nullable(),
+  
+  // Engagement
+  nextFollowupAt: z.string().optional().nullable(),
+  tags: z.string().max(1000).optional().nullable(),
 })
 
 export const UpdateClientSchema = CreateClientSchema.partial()
@@ -150,11 +190,29 @@ export const ClientFiltersSchema = z.object({
   email: z.string().max(255).optional(),
   agentId: z.coerce.number().int().positive().optional(),
   search: z.string().max(200).optional(),
+  status: ClientStatusEnum.optional(),
+  source: ClientSourceEnum.optional(),
+  interestType: InterestTypeEnum.optional(),
+  minLeadScore: z.coerce.number().int().min(0).optional(),
+  maxBudget: z.coerce.number().positive().optional(),
+  minBudget: z.coerce.number().positive().optional(),
 })
 
 export type CreateClientInput = z.infer<typeof CreateClientSchema>
 export type UpdateClientInput = z.infer<typeof UpdateClientSchema>
 export type ClientFilters = z.infer<typeof ClientFiltersSchema>
+
+// Client Interaction Schemas
+export const CreateInteractionSchema = z.object({
+  clientId: z.number().int().positive(),
+  interactionType: z.enum(['call', 'email', 'meeting', 'whatsapp', 'visit', 'note']),
+  summary: z.string().min(1).max(1000),
+  details: z.string().max(5000).optional().nullable(),
+  outcome: z.enum(['positive', 'neutral', 'negative', 'no_answer']).optional().nullable(),
+  durationMinutes: z.number().int().positive().max(480).optional().nullable(),
+})
+
+export type CreateInteractionInput = z.infer<typeof CreateInteractionSchema>
 
 // ============================================
 // User Schemas

@@ -6,7 +6,7 @@
 	import { toast } from '$stores/toast';
 	
 	// Lucide icons
-	import { Home, Building, Users, File, Shield, Menu, ChevronDown, User, Settings, LogOut } from 'lucide-svelte';
+	import { Home, Building, Users, File, Shield, Menu, ChevronDown, User, Settings, LogOut, CalendarDays } from 'lucide-svelte';
 
 	let { children } = $props();
 	let sidebarOpen = $state(true);
@@ -29,6 +29,7 @@
 		{ href: '/dashboard', label: 'Dashboard', icon: 'home' },
 		{ href: '/dashboard/properties', label: 'Propiedades', icon: 'building' },
 		{ href: '/dashboard/clients', label: 'Clientes', icon: 'users' },
+		{ href: '/dashboard/calendar', label: 'Calendario', icon: 'calendar' },
 		{ href: '/dashboard/documents', label: 'Documentos', icon: 'file' },
 	];
 
@@ -83,6 +84,8 @@
 							<Home class="h-4 w-4" />
 						{:else if item.icon === 'building'}
 							<Building class="h-4 w-4" />
+						{:else if item.icon === 'calendar'}
+							<CalendarDays class="h-4 w-4" />
 						{:else if item.icon === 'users'}
 							<Users class="h-4 w-4" />
 						{:else if item.icon === 'file'}

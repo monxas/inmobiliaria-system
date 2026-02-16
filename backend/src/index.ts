@@ -10,7 +10,9 @@ import { securityHeaders } from './middleware/security-headers'
 import { rateLimiter, authRateLimiter } from './middleware/rate-limiter'
 import { requestLogger } from './middleware/logger'
 import { errorHandler } from './middleware/errors'
-import { health, properties, clients, users, documents, auth, calendar } from './routes'
+import { health, properties, clients, users, documents, auth, calendar, communications } from './routes'
+import * as icalService from './services/ical-export.service'
+import { startScheduler } from './services/notification-orchestrator.service'
 import { logger } from './lib/logger'
 import { container } from './lib/container'
 import { loadConfig } from './config'
@@ -71,6 +73,30 @@ app.route('/api/clients', clients)
 app.route('/api/users', users)
 app.route('/api/documents', documents)
 app.route('/api/calendar', calendar)
+app.route('/api/communications', communications)
+
+// Public iCal feed (no auth - token in URL)
+app.get('/api/communications/calendar/feed/:token', async (c) => {
+  const token = c.req.param('token')
+  // Simple token decode (userId:timestamp in base64url)
+  try {
+    const decoded = Buffer.from(token, 'base64url').toString()
+    const userId = Number(decoded.split(':')[0])
+    if (!userId || isNaN(userId)) {
+      return c.json({ success: false, error: { message: 'Invalid feed token' } }, 401)
+    }
+    const ics = await icalService.generateUserFeed(userId)
+    return new Response(ics, {
+      headers: {
+        'Content-Type': 'text/calendar; charset=utf-8',
+        'Cache-Control': 'public, max-age=300',
+      },
+    })
+  } catch {
+    return c.json({ success: false, error: { message: 'Feed generation failed' } }, 500)
+  }
+})
+app.route('/api/events', events)
 
 // --- Root endpoint ---
 app.get('/', (c) => {
@@ -86,6 +112,7 @@ app.get('/', (c) => {
       users: '/api/users',
       documents: '/api/documents',
       calendar: '/api/calendar',
+      events: '/api/events',
     }
   })
 })
@@ -111,6 +138,9 @@ async function bootstrap(): Promise<void> {
   try {
     // Initialize container (verify database connection)
     await container.initialize()
+    
+    // Start communication scheduler (processes reminders every minute)
+    startScheduler()
     
     const startupTime = Math.round(performance.now() - startTime)
     

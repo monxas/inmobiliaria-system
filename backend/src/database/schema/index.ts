@@ -8,3 +8,4 @@ export * from './refresh-tokens';
 export * from './notifications';
 export * from './user-profiles';
 export * from './permissions';
+export * from './events';

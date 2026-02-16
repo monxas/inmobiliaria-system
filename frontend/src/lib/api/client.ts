@@ -279,6 +279,29 @@ export const clientsApi = {
 
 	async delete(id: number): Promise<ApiResponse<void>> {
 		return request(`/clients/${id}`, { method: 'DELETE' });
+	},
+
+	// Interactions
+	async getInteractions(clientId: number): Promise<ApiResponse<import('$types').ClientInteraction[]>> {
+		return request(`/clients/${clientId}/interactions`);
+	},
+
+	async addInteraction(clientId: number, data: { interactionType: string; summary: string; details?: string; outcome?: string; durationMinutes?: number }): Promise<ApiResponse<import('$types').ClientInteraction>> {
+		return request(`/clients/${clientId}/interactions`, { method: 'POST', body: data });
+	},
+
+	// Property Matching
+	async getPropertyMatches(clientId: number): Promise<ApiResponse<import('$types').ClientPropertyMatch[]>> {
+		return request(`/clients/${clientId}/matches`);
+	},
+
+	async matchProperties(clientId: number): Promise<ApiResponse<import('$types').ClientPropertyMatch[]>> {
+		return request(`/clients/${clientId}/match-properties`, { method: 'POST' });
+	},
+
+	// Lead Score
+	async recalculateScore(clientId: number): Promise<ApiResponse<{ leadScore: number }>> {
+		return request(`/clients/${clientId}/recalculate-score`, { method: 'POST' });
 	}
 };
 

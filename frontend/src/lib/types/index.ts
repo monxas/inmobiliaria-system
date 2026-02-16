@@ -35,6 +35,11 @@ export interface Property {
 	updatedAt?: string | null;
 }
 
+export type ClientStatus = 'lead' | 'contacted' | 'qualified' | 'negotiating' | 'closed' | 'lost';
+export type ClientSource = 'website' | 'referral' | 'walk_in' | 'phone' | 'social_media' | 'portal' | 'advertising' | 'other';
+export type ContactMethod = 'phone' | 'email' | 'whatsapp' | 'in_person';
+export type InterestType = 'buy' | 'rent' | 'both';
+
 export interface Client {
 	id: number;
 	fullName: string;
@@ -43,6 +48,69 @@ export interface Client {
 	address?: string | null;
 	notes?: string | null;
 	agentId?: number | null;
+	
+	// CRM Pipeline
+	status?: ClientStatus | null;
+	source?: ClientSource | null;
+	leadScore?: number | null;
+	
+	// Personal Info
+	dni?: string | null;
+	dateOfBirth?: string | null;
+	nationality?: string | null;
+	occupation?: string | null;
+	company?: string | null;
+	
+	// Contact Preferences
+	phoneSecondary?: string | null;
+	preferredContact?: ContactMethod | null;
+	preferredContactTime?: string | null;
+	timezone?: string | null;
+	language?: string | null;
+	
+	// Property Preferences
+	interestType?: InterestType | null;
+	budgetMin?: string | null;
+	budgetMax?: string | null;
+	preferredZones?: string | null;
+	preferredPropertyTypes?: string | null;
+	minBedrooms?: number | null;
+	minBathrooms?: number | null;
+	minSurface?: number | null;
+	needsGarage?: boolean | null;
+	needsGarden?: boolean | null;
+	additionalRequirements?: string | null;
+	
+	// Engagement
+	lastContactAt?: string | null;
+	nextFollowupAt?: string | null;
+	totalViewings?: number | null;
+	totalContacts?: number | null;
+	tags?: string | null;
+	
+	createdAt: string;
+	updatedAt?: string | null;
+}
+
+export interface ClientInteraction {
+	id: number;
+	clientId: number;
+	agentId?: number | null;
+	interactionType: string;
+	summary: string;
+	details?: string | null;
+	outcome?: string | null;
+	durationMinutes?: number | null;
+	createdAt: string;
+}
+
+export interface ClientPropertyMatch {
+	id: number;
+	clientId: number;
+	propertyId: number;
+	matchScore: number;
+	matchReasons?: string | null;
+	status: string;
 	createdAt: string;
 	updatedAt?: string | null;
 }
@@ -178,6 +246,31 @@ export interface ClientInput {
 	address?: string;
 	notes?: string;
 	agentId?: number;
+	status?: ClientStatus;
+	source?: ClientSource;
+	dni?: string;
+	dateOfBirth?: string;
+	nationality?: string;
+	occupation?: string;
+	company?: string;
+	phoneSecondary?: string;
+	preferredContact?: ContactMethod;
+	preferredContactTime?: string;
+	timezone?: string;
+	language?: string;
+	interestType?: InterestType;
+	budgetMin?: string;
+	budgetMax?: string;
+	preferredZones?: string;
+	preferredPropertyTypes?: string;
+	minBedrooms?: number;
+	minBathrooms?: number;
+	minSurface?: number;
+	needsGarage?: boolean;
+	needsGarden?: boolean;
+	additionalRequirements?: string;
+	nextFollowupAt?: string;
+	tags?: string;
 }
 
 export interface UserInput {
@@ -208,6 +301,10 @@ export interface ClientFilters {
 	email?: string;
 	agentId?: number;
 	search?: string;
+	status?: ClientStatus;
+	source?: ClientSource;
+	interestType?: InterestType;
+	minLeadScore?: number;
 }
 
 export interface UserFilters {
