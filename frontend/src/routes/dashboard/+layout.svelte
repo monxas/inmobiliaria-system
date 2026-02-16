@@ -31,6 +31,7 @@
 		{ href: '/dashboard/clients', label: 'Clientes', icon: 'users' },
 		{ href: '/dashboard/calendar', label: 'Calendario', icon: 'calendar' },
 		{ href: '/dashboard/documents', label: 'Documentos', icon: 'file' },
+		{ href: '/dashboard/communications', label: 'Comunicaciones', icon: 'message' },
 	];
 
 	const adminItems = [
@@ -90,6 +91,10 @@
 							<Users class="h-4 w-4" />
 						{:else if item.icon === 'file'}
 							<File class="h-4 w-4" />
+						{:else if item.icon === 'message'}
+							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+							</svg>
 						{/if}
 						{item.label}
 					</a>

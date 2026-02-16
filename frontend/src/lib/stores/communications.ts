@@ -4,7 +4,42 @@
  */
 
 import { writable, derived } from 'svelte/store'
-import { apiClient } from '../api/client'
+// Using fetch directly since apiClient doesn't expose generic delete with body
+const API_BASE = '/api'
+
+async function apiGet(path: string) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  return res.json()
+}
+
+async function apiPost(path: string, body?: any) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  })
+  return res.json()
+}
+
+async function apiDelete(path: string, body?: any) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  })
+  return res.json()
+}
 
 // =============================================================================
 // Types
@@ -53,24 +88,24 @@ export const pushSupported = writable(false)
 
 export async function fetchWhatsAppStatus(): Promise<void> {
   try {
-    const res = await apiClient.get('/communications/whatsapp/status')
+    const res = await apiGet('/communications/whatsapp/status')
     if (res.success) whatsappStatus.set(res.data)
   } catch { /* silent */ }
 }
 
 export async function initializeWhatsApp(): Promise<void> {
-  await apiClient.post('/communications/whatsapp/initialize')
+  await apiPost('/communications/whatsapp/initialize')
   // Poll for QR code
   setTimeout(fetchWhatsAppStatus, 2000)
 }
 
 export async function disconnectWhatsApp(): Promise<void> {
-  await apiClient.post('/communications/whatsapp/disconnect')
+  await apiPost('/communications/whatsapp/disconnect')
   whatsappStatus.set({ connected: false, state: 'disconnected' })
 }
 
 export async function fetchWhatsAppQR(): Promise<string | null> {
-  const res = await apiClient.get('/communications/whatsapp/qr')
+  const res = await apiGet('/communications/whatsapp/qr')
   if (res.success && res.data.qr) {
     return res.data.qr
   }
@@ -86,7 +121,7 @@ export async function sendMessage(params: {
   type?: string
   channels?: string[]
 }): Promise<{ success: boolean; channel?: string; error?: string }> {
-  const res = await apiClient.post('/communications/send', {
+  const res = await apiPost('/communications/send', {
     ...params,
     customMessage: params.message,
   })
@@ -94,7 +129,7 @@ export async function sendMessage(params: {
 }
 
 export async function sendQuickWhatsApp(clientId: number, message: string): Promise<{ success: boolean }> {
-  const res = await apiClient.post('/communications/send-quick', { clientId, message })
+  const res = await apiPost('/communications/send-quick', { clientId, message })
   return { success: res.success }
 }
 
@@ -104,17 +139,17 @@ export async function fetchHistory(filters?: { clientId?: number; channel?: stri
   if (filters?.channel) params.set('channel', filters.channel)
   if (filters?.limit) params.set('limit', String(filters.limit))
 
-  const res = await apiClient.get(`/communications/history?${params}`)
+  const res = await apiGet(`/communications/history?${params}`)
   if (res.success) communicationLogs.set(res.data.logs)
 }
 
 export async function fetchClientComms(clientId: number): Promise<any> {
-  const res = await apiClient.get(`/communications/client/${clientId}`)
+  const res = await apiGet(`/communications/client/${clientId}`)
   return res.success ? res.data : null
 }
 
 export async function fetchStats(): Promise<void> {
-  const res = await apiClient.get('/communications/stats')
+  const res = await apiGet('/communications/stats')
   if (res.success) commStats.set(res.data)
 }
 
@@ -131,7 +166,7 @@ export async function checkPushSupport(): Promise<boolean> {
 export async function subscribeToPush(): Promise<boolean> {
   try {
     // Get VAPID public key
-    const keyRes = await apiClient.get('/communications/push/vapid-key')
+    const keyRes = await apiGet('/communications/push/vapid-key')
     if (!keyRes.success || !keyRes.data.publicKey) return false
 
     // Register service worker
@@ -146,7 +181,7 @@ export async function subscribeToPush(): Promise<boolean> {
 
     // Send subscription to backend
     const subJson = subscription.toJSON()
-    await apiClient.post('/communications/push/subscribe', {
+    await apiPost('/communications/push/subscribe', {
       subscription: {
         endpoint: subJson.endpoint,
         keys: { p256dh: subJson.keys!.p256dh, auth: subJson.keys!.auth },
@@ -167,7 +202,7 @@ export async function unsubscribeFromPush(): Promise<void> {
   if (registration) {
     const subscription = await registration.pushManager.getSubscription()
     if (subscription) {
-      await apiClient.delete('/communications/push/subscribe', {
+      await apiDelete('/communications/push/subscribe', {
         endpoint: subscription.endpoint,
       })
       await subscription.unsubscribe()
@@ -177,7 +212,7 @@ export async function unsubscribeFromPush(): Promise<void> {
 }
 
 export async function testPush(): Promise<void> {
-  await apiClient.post('/communications/push/test')
+  await apiPost('/communications/push/test')
 }
 
 // =============================================================================
@@ -185,7 +220,7 @@ export async function testPush(): Promise<void> {
 // =============================================================================
 
 export async function getCalendarFeedUrl(): Promise<{ feedUrl: string; instructions: Record<string, string> } | null> {
-  const res = await apiClient.get('/communications/calendar/feed-url')
+  const res = await apiGet('/communications/calendar/feed-url')
   return res.success ? res.data : null
 }
 

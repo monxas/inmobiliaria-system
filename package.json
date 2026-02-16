@@ -77,6 +77,8 @@
     "playwright": "^1.58.2",
     "postgres": "^3.4.0",
     "sharp": "^0.34.5",
+    "web-push": "^3.6.0",
+    "whatsapp-web.js": "^1.26.0",
     "zod": "^3.22.0"
   },
   "engines": {
